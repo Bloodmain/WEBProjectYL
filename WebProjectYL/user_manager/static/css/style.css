@@ -1,0 +1,17 @@
+header {
+    width: 100%;
+    text-align: center;
+    background-color: #93c5db;
+}
+.privet {
+    color: #db030a;
+    text-align: center;
+}
+.please {
+    text-align: center;
+    color: #db9540;
+}
+img {
+    display: block;
+    margin: auto;
+}

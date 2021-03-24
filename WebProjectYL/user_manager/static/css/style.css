@@ -1,17 +1,101 @@
-header {
-    width: 100%;
-    text-align: center;
-    background-color: #93c5db;
+body {
+    background: url("../img/bg.jpg") no-repeat no-repeat center center fixed;
+    background-size: cover;
 }
-.privet {
-    color: #db030a;
-    text-align: center;
+nav:after {
+    display: inline-block;
+    height: 100%;
+    vertical-align: middle;
+    content: "";
 }
-.please {
-    text-align: center;
-    color: #db9540;
+nav .logo {
+    font-family: "Segoe Print";
+    font-weight: bold;
+    font-size: 30px;
+    margin-left: 30px;
+    vertical-align: middle;
+    display: inline-block;
+    padding-right: 10%;
 }
-img {
-    display: block;
+nav {
+    height: 60px;
+    background: #dafffa;
+    width: 70%;
     margin: auto;
+    border-radius: 10px;
 }
+nav a, .menu a, .menu_btn {
+    margin: auto;
+    vertical-align: middle;
+    display: inline-block;
+    text-decoration: none;
+    color: black;
+    font-family: "Segoe Print";
+    font-size: 23px;
+    padding-left: 5%;
+    padding-right: 5%;
+    cursor: pointer;
+}
+nav a:hover, .menu a:hover, .menu_btn:hover {
+    color: #29a6db;
+    text-decoration: none;
+}
+nav span {
+    font-weight: bold;
+}
+
+.burger {
+    cursor: pointer;
+    position: absolute;
+    margin-left: 82%;
+    margin-top: -45px;
+}
+.brick {
+    width: 30px;
+    height: 4px;
+    margin-top: 6px;
+    background: black;
+    transition: 0.3s ease-out;
+}
+
+.open .brick:first-child {
+  margin-top: 14px;
+  transform: rotate(405deg);
+}
+
+.open .brick:last-child {
+  margin-top: -14px;
+  transform: rotate(-405deg);
+}
+
+.open .middle {
+  transform: scale(0);
+}
+
+.menu {
+    height: 0;
+    margin-top: -10px;
+    margin-left: 73%;
+    background: #dafffa;
+    width: 200px;
+    border-radius: 5px;
+    opacity: 0;
+    transition: all 400ms;
+}
+.menu_active {
+    height: 100px;
+    opacity: 1;
+}
+.menu_a {
+    overflow: hidden;
+}
+.menu a {
+    margin-top: 0;
+    height: 0;
+    transition: all 400ms;
+}
+.menu_active a{
+    margin-top: 10px;
+    height: 40px;
+}
+

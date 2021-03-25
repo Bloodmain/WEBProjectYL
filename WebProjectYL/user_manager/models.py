@@ -23,6 +23,9 @@ class Profile(models.Model):
 
     def __str__(self):
         return self.user.username
+#
+#    def save(self, *args, **kwargs):
+#        pass
 
     def get_full_name(self):
         return self.surname + " " + self.name

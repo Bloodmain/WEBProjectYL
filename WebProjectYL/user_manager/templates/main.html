@@ -5,24 +5,50 @@
     <meta charset="UTF-8">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <title>Title</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <title>Новости</title>
 </head>
 <body>
     <header>
-        <h1>Oops</h1>
-        {% if user.is_authenticated %}
-            <a href="logout/"> Выйти {{user.username}} </a>
-        {% else %}
-            <a href="login/">Войти</a>
-        {% endif %}
+        <br>
+        <nav>
+            <div class="logo scalable">D&K</div>
+            <a href="homepage/" class="scalable">Моя страница</a> <span class="scalable">|</span>
+            <a href="messages/" class="scalable">Сообщения</a> <span class="scalable">|</span>
+            <a href="news/" class="scalable">Новости</a>
+            <div class="menu_btn scalable">Меню</div>
+        </nav>
+        <div class="burger">
+          <div class="brick"></div>
+          <div class="brick middle"></div>
+          <div class="brick"></div>
+        </div>
+        <div class="menu">
+            <a href="friends/" class="menu_a">Друзья</a><br>
+            <a href="groups/" class="menu_a">Сообщества</a>
+        </div>
+        <script type="text/javascript" src="{% static 'js/script.js' %}"></script>
+        <br>
+        <div class="log-btn">
+            {% if user.is_authenticated %}
+                <div>
+                    <img src="{% static 'img/als.jpeg' %}" alt="Аватарка" class="user_avatar">
+                    <div class="user_info">
+                        <div class="user_info_text">
+                            {{ user.username }}<br>
+                            <a href="logout/" class="logout btn btn-danger">Выйти</a>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <p>
+                    <a class="login btn btn-success" href="login/">Войти</a><br>
+                    <a class="btn btn-primary " href="register/">Зарегистрироваться</a>
+                </p>
+            {% endif %}
+        </div>
     </header>
     {% block content %}
-        {% if user.is_authenticated %}
-            <h1 class="privet">Ты думаешь, ты спрятался? Ты думаешь, я тебя не найду? ГДЕ МОИ 175?</h1>
-        {% else %}
-            <h1 class="please">Залогинься плиз...</h1>
-            <img src="{% static 'img/als.jpeg' %}" alt="Богиня">
-        {% endif %}
     {% endblock %}
 </body>
 </html>

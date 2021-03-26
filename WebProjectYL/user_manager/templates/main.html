@@ -6,17 +6,17 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <title>Title</title>
+    <title>Новости</title>
 </head>
 <body>
     <header>
         <br>
         <nav>
-            <div class="logo">D&K</div>
-            <a href="homepage/">Моя страница</a> <span>|</span>
-            <a href="messages/">Сообщения</a> <span>|</span>
-            <a href="news/">Новости</a>
-            <div class="menu_btn">Меню</div>
+            <div class="logo scalable">D&K</div>
+            <a href="homepage/" class="scalable">Моя страница</a> <span class="scalable">|</span>
+            <a href="messages/" class="scalable">Сообщения</a> <span class="scalable">|</span>
+            <a href="news/" class="scalable">Новости</a>
+            <div class="menu_btn scalable">Меню</div>
         </nav>
         <div class="burger">
           <div class="brick"></div>
@@ -28,10 +28,29 @@
             <a href="groups/" class="menu_a">Сообщества</a>
         </div>
         <script type="text/javascript" src="{% static 'js/script.js' %}"></script>
-
+        <br>
+        {% block login %}
+        <div class="log-btn">
+            {% if user.is_authenticated %}
+                <div>
+                    <img src="{{ user.profile.avatar.url }}" alt="Аватарка" class="user_avatar">
+                    <div class="user_info">
+                        <div class="user_info_text">
+                            {{ user.profile.name }} {{ user.profile.surname }}<br>
+                            <a href="logout/" class="logout btn btn-danger">Выйти</a>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <p>
+                    <a class="login btn btn-success" href="login/">Войти</a><br>
+                    <a class="btn btn-primary " href="register/">Зарегистрироваться</a>
+                </p>
+            {% endif %}
+        </div>
+        {% endblock %}
     </header>
     {% block content %}
-
     {% endblock %}
 </body>
 </html>

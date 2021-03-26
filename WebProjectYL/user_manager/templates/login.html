@@ -1,8 +1,17 @@
 {% extends "main.html" %}
+{% block login %}
+<a class="register btn btn-primary " href="register/">Зарегистрироваться</a>
+{% endblock %}
 {% block content %}
-<form action="" method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Войти</button>
-</form>
+
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/login_style.css' %}">
+
+    <h1>Войти</h1>
+    <form class="login-form" action="" method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Войти</button>
+    </form>
+
 {% endblock %}

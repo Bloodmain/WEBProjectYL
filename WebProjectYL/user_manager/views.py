@@ -1,5 +1,7 @@
-from django.contrib.auth import login, logout
-from django.contrib.auth.forms import AuthenticationForm
+from django.contrib import messages
+from django.contrib.auth import login, logout, authenticate
+from .forms import UserLoginForm, UserForm, ProfileForm
+from .models import Profile
 from django.shortcuts import render, redirect
 
 # Create your views here.
@@ -15,7 +17,7 @@ class MainView(TemplateView):
 
 
 class LoginView(FormView):
-    form_class = AuthenticationForm
+    form_class = UserLoginForm
     success_url = '/'
     template_name = 'login.html'
 
@@ -24,11 +26,37 @@ class LoginView(FormView):
         login(self.request, self.user)
         return super().form_valid(form)
 
-    def form_invalid(self, form):
-        return super().form_invalid(form)
-
 
 class Logout(View):
     def get(self, request):
         logout(request)
         return redirect('/')
+
+
+def register(request):
+    if request.method == 'POST':
+        user_form = UserForm(request.POST)
+        profile_form = ProfileForm(request.POST)
+        if user_form.is_valid() and profile_form.is_valid():
+            user = user_form.save(commit=False)
+            user.set_password(user_form.cleaned_data['password'])
+            user.save()
+
+            user.profile.name = profile_form.cleaned_data['name']
+            user.profile.surname = profile_form.cleaned_data['surname']
+            user.profile.bio = profile_form.cleaned_data['bio']
+            user.profile.status = profile_form.cleaned_data['status']
+            user.profile.birth_date = profile_form.cleaned_data['birth_date']
+            user.profile.save()
+
+            messages.success(request, 'Успешная регистрация!')
+            return redirect('/login/')
+        else:
+            messages.error(request, 'Пожалуйста, исправьте ошибки.')
+    else:
+        user_form = UserForm()
+        profile_form = ProfileForm()
+    return render(request, 'register.html', {
+        'user_form': user_form,
+        'profile_form': profile_form
+    })

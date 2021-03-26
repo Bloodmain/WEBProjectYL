@@ -11,7 +11,7 @@ nav:after {
 nav .logo {
     font-family: "Segoe Print";
     font-weight: bold;
-    font-size: 30px;
+    font-size: calc(0.6em + 1vw);
     margin-left: 30px;
     vertical-align: middle;
     display: inline-block;
@@ -31,7 +31,7 @@ nav a, .menu a, .menu_btn {
     text-decoration: none;
     color: black;
     font-family: "Segoe Print";
-    font-size: 23px;
+    font-size: calc(0.3em + 1vw);
     padding-left: 5%;
     padding-right: 5%;
     cursor: pointer;
@@ -51,7 +51,7 @@ nav span {
     margin-top: -45px;
 }
 .brick {
-    width: 30px;
+    width: calc(0.5em + 1vw);
     height: 4px;
     margin-top: 6px;
     background: black;
@@ -73,21 +73,21 @@ nav span {
 }
 
 .menu {
+    position: absolute;
     height: 0;
     margin-top: -10px;
     margin-left: 73%;
     background: #dafffa;
-    width: 200px;
+    width: fit-content;
     border-radius: 5px;
-    opacity: 0;
     transition: all 400ms;
 }
 .menu_active {
-    height: 100px;
-    opacity: 1;
+    height: calc(7em + 1vh);
 }
 .menu_a {
     overflow: hidden;
+    width: calc(7em + 1vw);
 }
 .menu a {
     margin-top: 0;
@@ -96,6 +96,43 @@ nav span {
 }
 .menu_active a{
     margin-top: 10px;
-    height: 40px;
+    height: calc(1em + 1vw);
+}
+.log-btn {
+    width: fit-content;
+    margin-left: 15%;
+}
+.login {
+    margin-left: 30%;
+    margin-bottom: 5px;
+}
+.user_avatar {
+    position: absolute;
+    margin-top: 10px;
+    margin-left: calc(1em + 1vw);
+    width: 80px;
+    height: 80px;
+    border-radius: 50px;
+}
+.user_info{
+    margin-left: calc(1em + 0.5vw);
+    text-align: center;
+    width: 0;
+    height: 100px;
+    background: #dafffa;
+    border-radius: 50px;
+    transition: width 400ms;
+}
+.user_avatar:hover + .user_info, .user_info:hover{
+    width: 350px;
+}
+.user_info_text{
+    white-space: nowrap;
+    overflow: hidden;
+    padding-top: 15px;
+    padding-left: 60px;
 }
 
+.logout {
+    margin-top: 10px;
+}

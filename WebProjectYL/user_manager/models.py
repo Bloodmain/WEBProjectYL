@@ -1,11 +1,14 @@
 from django.db import models
 from django.contrib.auth.models import User
-import datetime as dt
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
+
 # Create your models here.
 
 
 def avatars_directory(instance, filename):
-    return f"user_{instance.user.id}/avatar/{filename}"
+    return f"user_{instance.user.id}/avatar.jpg"
 
 
 def news_files_directory(instance, filename):
@@ -13,19 +16,18 @@ def news_files_directory(instance, filename):
 
 
 class Profile(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, unique=True, related_name='profile')
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     name = models.CharField(max_length=50, verbose_name="Имя", null=True, blank=False)
     surname = models.CharField(max_length=75, verbose_name="Фамилия", null=True, blank=False)
-    bio = models.TextField(max_length=500, verbose_name="Описание", default="", null=True, blank=False)
+    bio = models.TextField(max_length=500, verbose_name="Описание", default="", null=True,
+                           blank=False)
     avatar = models.ImageField(verbose_name="Фото", null=True, upload_to=avatars_directory)
-    status = models.CharField(max_length=75, default="", verbose_name="Статус", null=True, blank=False)
+    status = models.CharField(max_length=75, default="", verbose_name="Статус", null=True,
+                              blank=False)
     birth_date = models.DateField(verbose_name='Дата рождения', null=True, blank=False)
 
     def __str__(self):
         return self.user.username
-#
-#    def save(self, *args, **kwargs):
-#        pass
 
     def get_full_name(self):
         return self.surname + " " + self.name
@@ -65,3 +67,13 @@ class Commentary(models.Model):
         verbose_name = "Комментарий"
         verbose_name_plural = "Коммментарии"
 
+
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        Profile.objects.create(user=instance)
+
+
+@receiver(post_save, sender=User)
+def save_user_profile(sender, instance, **kwargs):
+    instance.profile.save()

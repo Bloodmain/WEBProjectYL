@@ -1,5 +1,5 @@
 h1 {
-    margin-top: -40px;
+    margin-top: 4%;
     font-family: "Segoe Print";
     text-align: center;
 }
@@ -11,12 +11,13 @@ label {
     font-size: 20px;
 }
 .form-control {
-    width: 70%;
+    width: 80%;
     margin: auto;
+    background: #fbfbfb;
 }
 .login-form {
     margin: auto;
-    background: #dafffa;
+    background: white;
     width: 30%;
     border-radius: 20px;
     height: fit-content
@@ -24,6 +25,13 @@ label {
 .login-form button {
     margin-bottom: 10px;
 }
-.register {
+.login {
     margin-left: 18%;
+}
+.register {
+    margin-top: calc(3em + 1vh);
+    margin-left: 15%;
+}
+.helptext {
+    visibility: hidden;
 }

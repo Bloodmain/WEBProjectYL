@@ -37,14 +37,14 @@
                     <div class="user_info">
                         <div class="user_info_text">
                             {{ user.profile.name }} {{ user.profile.surname }}<br>
-                            <a href="logout/" class="logout btn btn-danger">Выйти</a>
+                            <a href="/logout/" class="logout btn btn-danger">Выйти</a>
                         </div>
                     </div>
                 </div>
             {% else %}
                 <p>
                     <a class="login btn btn-success" href="/login/">Войти</a><br>
-                    <a class="btn btn-primary " href="/register/">Зарегистрироваться</a>
+                    <a class="register btn btn-primary " href="/register/">Зарегистрироваться</a>
                 </p>
             {% endif %}
         </div>

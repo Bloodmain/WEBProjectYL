@@ -1,7 +1,6 @@
 from django.contrib import messages
-from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth import login, logout
 from .forms import UserLoginForm, UserForm, ProfileForm
-from .models import Profile
 from django.shortcuts import render, redirect
 
 # Create your views here.
@@ -36,23 +35,23 @@ class Logout(View):
 def register(request):
     if request.method == 'POST':
         user_form = UserForm(request.POST)
-        profile_form = ProfileForm(request.POST)
+        profile_form = ProfileForm(request.POST, request.FILES)
         if user_form.is_valid() and profile_form.is_valid():
             user = user_form.save(commit=False)
             user.set_password(user_form.cleaned_data['password'])
             user.save()
-
-            user.profile.name = profile_form.cleaned_data['name']
-            user.profile.surname = profile_form.cleaned_data['surname']
+            user.profile.name = user_form.cleaned_data['first_name']
+            user.profile.surname = user_form.cleaned_data['last_name']
             user.profile.bio = profile_form.cleaned_data['bio']
             user.profile.status = profile_form.cleaned_data['status']
+            user.profile.avatar = profile_form.cleaned_data['avatar']
             user.profile.birth_date = profile_form.cleaned_data['birth_date']
             user.profile.save()
 
             messages.success(request, 'Успешная регистрация!')
             return redirect('/login/')
         else:
-            messages.error(request, 'Пожалуйста, исправьте ошибки.')
+            messages.error(request, f'Пожалуйста, исправьте ошибки.')
     else:
         user_form = UserForm()
         profile_form = ProfileForm()

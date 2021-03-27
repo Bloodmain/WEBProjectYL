@@ -22,7 +22,7 @@ nav .logo {
 
 nav {
     position: fixed;
-    height: 60px;
+    height: fit-content;
     background: #dafffa;
     width: 70%;
     margin-left: 15%;
@@ -55,7 +55,7 @@ nav span {
     cursor: pointer;
     position: fixed;
     margin-left: 82%;
-    margin-top: 0.6%;
+    margin-top: calc(0.25em + 0.1vw);
 }
 
 .brick {
@@ -81,18 +81,21 @@ nav span {
 }
 
 .menu {
+    overflow-y: hidden;
     position: fixed;
-    height: 0;
-    margin-top: calc(2.9em + 1vh);
+    height: fit-content;
+    margin-top: calc(1.8em + 1vh);
     margin-left: 73%;
     background: #dafffa;
     width: fit-content;
     border-radius: 5px;
+    transform:scaleY(0);
+    transform-origin: top;
     transition: all 400ms;
 }
 
 .menu_active {
-    height: calc(7em + 1vh);
+    transform:scaleY(1);
 }
 
 .menu_a {
@@ -103,7 +106,7 @@ nav span {
 .menu a {
     margin-top: 0;
     height: 0;
-    transition: all 400ms;
+    transition: margin-top 400ms, height 400ms;
 }
 
 .menu_active a {
@@ -130,7 +133,7 @@ nav span {
 .user_avatar {
     position: fixed;
     z-index: 2;
-    margin-top: calc(3.5em + 1vh);
+    margin-top: calc(3.7em + 1vh);
     margin-left: calc(1em + 1vw);
     width: 80px;
     height: 80px;

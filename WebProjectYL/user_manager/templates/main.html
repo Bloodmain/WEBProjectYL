@@ -3,33 +3,35 @@
 <head>
     {% load static %}
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet"
+          href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+          crossorigin="anonymous">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <title>Новости</title>
 </head>
 <body>
-    <header>
-        <br>
-        <nav>
-            <div class="logo scalable">D&K</div>
-            <a href="/homepage/" class="scalable">Моя страница</a> <span class="scalable">|</span>
-            <a href="/messages/" class="scalable">Сообщения</a> <span class="scalable">|</span>
-            <a href="/" class="scalable">Новости</a>
-            <div class="menu_btn scalable">Меню</div>
-        </nav>
-        <div class="burger">
-          <div class="brick"></div>
-          <div class="brick middle"></div>
-          <div class="brick"></div>
-        </div>
-        <div class="menu">
-            <a href="/friends/" class="menu_a">Друзья</a><br>
-            <a href="/groups/" class="menu_a">Сообщества</a>
-        </div>
-        <script type="text/javascript" src="{% static 'js/script.js' %}"></script>
-        <br>
-        {% block login %}
+<header>
+    <br>
+    <nav>
+        <div class="logo scalable">D&K</div>
+        <a href="/homepage/" class="scalable">Моя страница</a> <span class="scalable">|</span>
+        <a href="/messages/" class="scalable">Сообщения</a> <span class="scalable">|</span>
+        <a href="/" class="scalable">Новости</a>
+        <div class="menu_btn scalable">Меню</div>
+    </nav>
+    <div class="burger">
+        <div class="brick"></div>
+        <div class="brick middle"></div>
+        <div class="brick"></div>
+    </div>
+    <div class="menu">
+        <a href="/friends/" class="menu_a">Друзья</a><br>
+        <a href="/groups/" class="menu_a">Сообщества</a>
+    </div>
+    <br>
+    {% block login %}
         <div class="log-btn">
             {% if user.is_authenticated %}
                 <div>
@@ -48,9 +50,24 @@
                 </p>
             {% endif %}
         </div>
-        {% endblock %}
-    </header>
-    {% block content %}
     {% endblock %}
+</header>
+<div class="cont">
+    {% block content %}
+        {% if user.is_authenticated %}
+            <form class="login-form" action="" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="news_creation btn btn-primary">Создать</button>
+            </form>
+            {% for news in all_news %}
+                <div>
+                    {{ news.text_content }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endblock %}
+</div>
+<script type="text/javascript" src="{% static 'js/script.js' %}"></script>
 </body>
 </html>

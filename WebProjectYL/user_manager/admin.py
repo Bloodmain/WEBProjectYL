@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Profile, News, Commentary
+from .models import Profile, News, Commentary, NewsFile
 
 
 class AdminProfile(admin.ModelAdmin):
@@ -21,6 +21,15 @@ class AdminNews(admin.ModelAdmin):
         model = News
 
 
+class AdminNewsFiles(admin.ModelAdmin):
+    list_display = ['news', 'file']
+    search_fields = ['news', 'file']
+    list_filter = ['news', 'file']
+
+    class Meta:
+        model = NewsFile
+
+
 class AdminCommentary(admin.ModelAdmin):
     list_display = ['user', 'news']
     search_fields = ['user', 'news', 'text']
@@ -34,3 +43,4 @@ class AdminCommentary(admin.ModelAdmin):
 admin.site.register(Profile, AdminProfile)
 admin.site.register(News, AdminNews)
 admin.site.register(Commentary, AdminCommentary)
+admin.site.register(NewsFile, AdminNewsFiles)

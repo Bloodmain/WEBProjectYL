@@ -8,11 +8,11 @@ from django.dispatch import receiver
 
 
 def avatars_directory(instance, filename):
-    return f"user_{instance.user.id}/avatar.jpg"
+    return f"users/{instance.user.id}/avatar.jpg"
 
 
 def news_files_directory(instance, filename):
-    return f"user_{instance.user.id}_news_{instance.id}/files/{filename}"
+    return f"news/{instance.news.id}/files/{filename}"
 
 
 class Profile(models.Model):
@@ -25,6 +25,9 @@ class Profile(models.Model):
     status = models.CharField(max_length=75, default="", verbose_name="Статус", null=True,
                               blank=False)
     birth_date = models.DateField(verbose_name='Дата рождения', null=True, blank=False)
+
+    def get_news_interesting_for_user(self):
+        return self.user.news.all
 
     def __str__(self):
         return self.user.username
@@ -45,7 +48,6 @@ class News(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='news')
     text_content = models.TextField(max_length=1000, verbose_name='Контент', blank=False)
     likes = models.IntegerField(default=0, verbose_name='Лайки')
-    files = models.FileField(null=True, blank=True, upload_to=news_files_directory)
 
     def __str__(self):
         return self.text_content[:20] + "..."
@@ -53,6 +55,15 @@ class News(models.Model):
     class Meta:
         verbose_name = "Новость"
         verbose_name_plural = "Новости"
+
+
+class NewsFile(models.Model):
+    news = models.ForeignKey(News, on_delete=models.CASCADE, related_name='files')
+    file = models.FileField(null=True, blank=True, upload_to=news_files_directory)
+
+    class Meta:
+        verbose_name = "Файл"
+        verbose_name_plural = "Файлы"
 
 
 class Commentary(models.Model):

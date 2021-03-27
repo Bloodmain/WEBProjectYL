@@ -11,8 +11,6 @@ label {
     font-size: 20px;
 }
 .form-control {
-    width: 80%;
-    margin: auto;
     background: #fbfbfb;
 }
 .login-form {
@@ -22,6 +20,7 @@ label {
     border-radius: 20px;
     height: fit-content
 }
+
 .login-form button {
     margin-bottom: 10px;
 }

@@ -1,18 +1,28 @@
 from django.contrib import messages
 from django.contrib.auth import login, logout
-from .forms import UserLoginForm, UserForm, ProfileForm
+from .forms import UserLoginForm, UserForm, ProfileForm, NewsForm
 from django.shortcuts import render, redirect
+from .models import NewsFile, News
 
 # Create your views here.
 from django.views import View
-from django.views.generic import TemplateView, FormView
+from django.views.generic import FormView
 
 
-class MainView(TemplateView):
-    template_name = 'main.html'
-
-    def get(self, request):
-        return render(request, self.template_name, {})
+def news_form(request):
+    if request.method == 'POST':
+        form = NewsForm(request.POST, request.FILES)
+        if form.is_valid():
+            news = News.objects.create(user=request.user,
+                                       text_content=form.cleaned_data['text_content'])
+            for file in request.FILES.getlist('attachments'):
+                NewsFile.objects.create(file=file, news=news)
+            news.save()
+            return redirect('/')
+    else:
+        form = NewsForm()
+    return render(request, 'main.html',
+                  {'form': form, 'all_news': request.user.profile.get_news_interesting_for_user()})
 
 
 class LoginView(FormView):

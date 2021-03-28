@@ -21,8 +21,12 @@ def news_form(request):
             return redirect('/')
     else:
         form = NewsForm()
-    return render(request, 'main.html',
-                  {'form': form, 'all_news': request.user.profile.get_news_interesting_for_user()})
+    if request.user.is_authenticated:
+        return render(request, 'main.html',
+                      {'form': form,
+                       'all_news': request.user.profile.get_news_interesting_for_user()})
+    else:
+        return render(request, 'main.html', {'form': form, 'all_news': []})
 
 
 class LoginView(FormView):

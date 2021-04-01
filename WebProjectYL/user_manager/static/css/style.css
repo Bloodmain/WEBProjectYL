@@ -204,12 +204,11 @@ nav span {
 }
 
 .news_creation {
+    position: relative;
     transform: scaleY(0);
     transform-origin: top;
-    position: absolute;
-    margin-left: 32%;
-    margin-top: -3%;
-    transition: all 400ms;
+    float: right;
+    transition: transform 400ms;
 }
 
 .create {
@@ -224,9 +223,82 @@ nav span {
 .news_files {
     transform: scaleY(0);
     transform-origin: top;
-    transition: all 400ms;
+    transition: border 100ms, transform 400ms;
+    background: #fbfbfb;
+}
+
+.news_files:hover {
+    border: #afebff solid 1px;
 }
 
 .create-files {
     transform: scaleY(1);
+}
+
+.file-input-name {
+    font-size: 0;
+    transition: font-size 100ms;
+}
+
+.opened {
+    font-size: 15px;
+}
+
+.news {
+    border: 1px solid black;
+    border-radius: 40px;
+}
+
+.creator_name {
+    text-decoration: none;
+    color: black;
+    cursor: pointer;
+}
+
+.creator_name:hover {
+    color: #29a6db;
+}
+
+.news_avatar:hover + .creator_name {
+    color: #29a6db;
+}
+
+.author_url:hover{
+    text-decoration: none;
+}
+
+.news_avatar {
+    margin-left: calc(1em + 1vw);
+    width: 40px;
+    height: 40px;
+    margin-top: calc(0.1em + 0.5vw);
+    border-radius: 50px;
+    border: 1px solid black;
+}
+
+.news_content {
+    padding-bottom: 10px;
+    margin-left: calc(1em + 1vw);
+}
+
+.attach {
+    height: 50%;
+}
+
+.images {
+    text-align: center;
+    width: 90%;
+}
+
+.likes_counter {
+    float: right;
+    margin-right: 2%;
+}
+
+.like_img {
+    margin-right: 1%;
+    position: relative;
+    float: right;
+    width: 30px;
+    height: 30px;
 }

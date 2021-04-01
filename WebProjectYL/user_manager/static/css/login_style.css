@@ -3,16 +3,20 @@ h1 {
     font-family: "Segoe Print";
     text-align: center;
 }
+
 form {
     text-align: center;
 }
+
 label {
     font-family: "Segoe Print";
     font-size: 20px;
 }
+
 .form-control {
     background: #fbfbfb;
 }
+
 .login-form {
     margin: auto;
     background: white;
@@ -24,13 +28,29 @@ label {
 .login-form button {
     margin-bottom: 10px;
 }
+
 .login {
     margin-left: 18%;
 }
+
 .register {
     margin-top: calc(3em + 1vh);
     margin-left: 15%;
 }
+
 .helptext {
     visibility: hidden;
+}
+
+.avatar {
+    transition: border 100ms;
+    background: #fbfbfb;
+}
+
+.avatar:hover {
+    border: #afebff solid 1px;
+}
+
+.file-input-name {
+    font-size: 15px;
 }

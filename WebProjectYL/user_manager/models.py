@@ -49,9 +49,6 @@ class News(models.Model):
     text_content = models.TextField(max_length=1000, verbose_name='Контент', blank=False)
     likes = models.IntegerField(default=0, verbose_name='Лайки')
 
-    def __str__(self):
-        return self.text_content[:20] + "..."
-
     class Meta:
         verbose_name = "Новость"
         verbose_name_plural = "Новости"

@@ -70,8 +70,8 @@ class ProfileForm(forms.ModelForm):
         label='', required=False)
 
     avatar = forms.ImageField(widget=forms.FileInput(
-        attrs={'class': 'form-control', 'placeholder': '', 'id': 'avatar'}),
-        label='Аватар', required=False)
+        attrs={'class': 'form-control avatar', 'placeholder': ''}),
+        label='', required=False)
 
 
 class NewsForm(forms.ModelForm):
@@ -84,5 +84,6 @@ class NewsForm(forms.ModelForm):
         label='', required=True)
 
     attachments = forms.FileField(
-        widget=forms.ClearableFileInput(attrs={'multiple': True, 'class': 'news_files'}),
-        label='')
+        widget=forms.ClearableFileInput(
+            attrs={'multiple': True, 'class': 'news_files'}),
+        label='', required=False)

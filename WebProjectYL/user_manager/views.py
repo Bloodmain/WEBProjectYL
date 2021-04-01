@@ -7,6 +7,7 @@ from .models import NewsFile, News
 # Create your views here.
 from django.views import View
 from django.views.generic import FormView
+import os
 
 
 def news_form(request):
@@ -22,11 +23,24 @@ def news_form(request):
     else:
         form = NewsForm()
     if request.user.is_authenticated:
+        all_news = request.user.profile.get_news_interesting_for_user()()
+        images = {}
+        width = {}
+        for news in all_news:
+            for file in news.files.all():
+                url = file.file.url
+                if url.rsplit('.', 1)[-1] in {'png', 'jpg', 'jpeg'}:
+                    images[news] = images.get(news, set()) | {file}
+            if news in images:
+                width[news] = 100 // min(len(images[news]), 3)
         return render(request, 'main.html',
                       {'form': form,
-                       'all_news': request.user.profile.get_news_interesting_for_user()})
+                       'all_news': all_news,
+                       'images': images,
+                       'widths': width})
     else:
-        return render(request, 'main.html', {'form': form, 'all_news': []})
+        return render(request, 'main.html',
+                      {'form': form, 'all_news': [], 'images': {}, 'widths': {}})
 
 
 class LoginView(FormView):

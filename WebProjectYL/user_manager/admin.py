@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Profile, News, Commentary, NewsFile
+from .models import Profile, News, Commentary, NewsFile, Repost, Posts, Likes
 
 
 class AdminProfile(admin.ModelAdmin):
@@ -13,12 +13,29 @@ class AdminProfile(admin.ModelAdmin):
 
 
 class AdminNews(admin.ModelAdmin):
-    list_display = ['user', 'likes']
-    search_fields = ['user', 'text_content']
-    list_filter = ['user', 'likes', 'text_content']
+    list_display = ['user', 'likes', 'create_date']
+    search_fields = ['user', 'text_content', 'create_date']
+    list_filter = ['user', 'likes', 'text_content', 'create_date']
 
     class Meta:
         model = News
+
+
+class AdminRepost(admin.ModelAdmin):
+    list_display = ['news', 'user', 'create_date']
+    search_fields = ['news', 'user', 'create_date']
+    list_filter = ['news', 'user', 'create_date']
+
+    class Meta:
+        model = Repost
+
+
+class AdminPosts(admin.ModelAdmin):
+    pass
+
+
+class AdminLikes(admin.ModelAdmin):
+    pass
 
 
 class AdminNewsFiles(admin.ModelAdmin):
@@ -44,3 +61,6 @@ admin.site.register(Profile, AdminProfile)
 admin.site.register(News, AdminNews)
 admin.site.register(Commentary, AdminCommentary)
 admin.site.register(NewsFile, AdminNewsFiles)
+admin.site.register(Repost, AdminRepost)
+admin.site.register(Posts, AdminPosts)
+admin.site.register(Likes, AdminLikes)

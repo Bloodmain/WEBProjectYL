@@ -23,7 +23,7 @@ def news_form(request):
     else:
         form = NewsForm()
     if request.user.is_authenticated:
-        all_news = request.user.profile.get_news_interesting_for_user()()
+        all_news = request.user.profile.get_news_interesting_for_user()
         images = {}
         width = {}
         for news in all_news:

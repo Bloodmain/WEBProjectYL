@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+import datetime
 
 
 # Create your models here.
@@ -27,7 +28,9 @@ class Profile(models.Model):
     birth_date = models.DateField(verbose_name='Дата рождения', null=True, blank=False)
 
     def get_news_interesting_for_user(self):
-        return self.user.news.all
+        # TODO last (News + Reposts)
+        post = sorted(list(self.user.news.all()) + list(self.user.repost.all()), key=lambda x: x.create_date, reverse=True)
+        return post
 
     def __str__(self):
         return self.user.username
@@ -48,6 +51,7 @@ class News(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='news')
     text_content = models.TextField(max_length=1000, verbose_name='Контент', blank=False)
     likes = models.IntegerField(default=0, verbose_name='Лайки')
+    create_date = models.DateTimeField(verbose_name='дата создания', default=datetime.datetime.now())
 
     class Meta:
         verbose_name = "Новость"
@@ -63,6 +67,34 @@ class NewsFile(models.Model):
         verbose_name_plural = "Файлы"
 
 
+class Repost(models.Model):
+    news = models.ForeignKey(News, on_delete=models.CASCADE, related_name='repost')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='repost')
+    create_date = models.DateTimeField(verbose_name='дата создания', default=datetime.datetime.now())
+
+    class Meta:
+        verbose_name = 'Репост'
+        verbose_name_plural = 'Репосты'
+
+
+class Posts(models.Model):
+    news = models.OneToOneField(News, on_delete=models.CASCADE, null=True, blank=True, related_name='post')
+    repost = models.OneToOneField(Repost, on_delete=models.CASCADE, null=True, blank=True, related_name='post')
+
+    class Meta:
+        verbose_name = "Пост"
+        verbose_name_plural = "Посты"
+
+    @property
+    def total_likes(self):
+        return self.likes.count()
+
+
+class Likes(models.Model):
+    user = models.ForeignKey(User, related_name='likes', on_delete=models.CASCADE)
+    post = models.ForeignKey(Posts, related_name='likes', on_delete=models.CASCADE)
+
+
 class Commentary(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comment')
     news = models.ForeignKey(News, on_delete=models.CASCADE, related_name='comment')
@@ -74,6 +106,28 @@ class Commentary(models.Model):
     class Meta:
         verbose_name = "Комментарий"
         verbose_name_plural = "Коммментарии"
+
+
+@receiver(post_save, sender=News)
+def create_post_news(sender, instance, created, **kwargs):
+    if created:
+        Posts.objects.create(news=instance)
+
+
+@receiver(post_save, sender=News)
+def save_user_profile(sender, instance, **kwargs):
+    instance.post.save()
+
+
+@receiver(post_save, sender=Repost)
+def create_post_news(sender, instance, created, **kwargs):
+    if created:
+        Posts.objects.create(news=instance)
+
+
+@receiver(post_save, sender=Repost)
+def save_user_profile(sender, instance, **kwargs):
+    instance.post.save()
 
 
 @receiver(post_save, sender=User)

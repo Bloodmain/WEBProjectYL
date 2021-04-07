@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth import login, logout
+from django.contrib.auth.models import User
 from .forms import UserLoginForm, UserForm, ProfileForm, NewsForm
 from django.shortcuts import render, redirect
 from .models import NewsFile, News
@@ -8,6 +9,19 @@ from .models import NewsFile, News
 from django.views import View
 from django.views.generic import FormView
 import os
+
+
+def get_news(all_news):
+    images = {}
+    width = {}
+    for news in all_news:
+        for file in news.files.all():
+            url = file.file.url
+            if url.rsplit('.', 1)[-1] in {'png', 'jpg', 'jpeg'}:
+                images[news] = images.get(news, set()) | {file}
+        if news in images:
+            width[news] = 100 // min(len(images[news]), 3)
+    return images, width
 
 
 def news_form(request):
@@ -24,23 +38,16 @@ def news_form(request):
         form = NewsForm()
     if request.user.is_authenticated:
         all_news = request.user.profile.get_news_interesting_for_user()
-        images = {}
-        width = {}
-        for news in all_news:
-            for file in news.files.all():
-                url = file.file.url
-                if url.rsplit('.', 1)[-1] in {'png', 'jpg', 'jpeg'}:
-                    images[news] = images.get(news, set()) | {file}
-            if news in images:
-                width[news] = 100 // min(len(images[news]), 3)
-        return render(request, 'main.html',
-                      {'form': form,
-                       'all_news': all_news,
-                       'images': images,
-                       'widths': width})
     else:
-        return render(request, 'main.html',
-                      {'form': form, 'all_news': [], 'images': {}, 'widths': {}})
+        all_news = sorted(News.objects.all(), key=lambda x: x.create_date, reverse=True)
+
+    images, width = get_news(all_news)
+
+    return render(request, 'main.html',
+                  {'form': form,
+                   'all_news': all_news,
+                   'images': images,
+                   'widths': width})
 
 
 class LoginView(FormView):
@@ -87,3 +94,20 @@ def register(request):
         'user_form': user_form,
         'profile_form': profile_form
     })
+
+
+def unknown_homepage(request):
+    return render(request, 'unknown_homepage.html', {})
+
+
+def homepage(request, user_id):
+    user = User.objects.get(id=user_id)
+    is_friends = request.user.is_authenticated and user.profile.is_friends(request.user)
+    all_news = sorted(user.news.all(), key=lambda x: x.create_date, reverse=True)
+    images, width = get_news(all_news)
+    return render(request, 'homepage.html', {
+        'page_owner': user,
+        'is_friends': is_friends,
+        'images': images,
+        'widths': width,
+        'all_news': all_news})

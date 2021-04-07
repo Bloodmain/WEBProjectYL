@@ -17,7 +17,13 @@
     <br>
     <nav>
         <div class="logo scalable">D&K</div>
-        <a href="/homepage/" class="scalable">Моя страница</a> <span class="scalable">|</span>
+        {% if user.is_authenticated %}
+            <a href="/homepage/{{ user.id }}" class="scalable">Моя страница</a>
+            <span class="scalable">|</span>
+        {% else %}
+            <a href="/homepage/unknown" class="scalable">Моя страница</a>
+            <span class="scalable">|</span>
+        {% endif %}
         <a href="/messages/" class="scalable">Сообщения</a> <span class="scalable">|</span>
         <a href="/" class="scalable">Новости</a>
         <div class="menu_btn scalable">Меню</div>
@@ -62,44 +68,50 @@
                 <button type="submit" class="news_creation btn btn-primary">Создать</button>
             </form>
             <br>
-            {% for news in all_news %}
-                <div class="news">
-                    <a href="/homepage/" class="author_url">
-                        <img src="{{ news.user.profile.avatar.url }}" alt="Аватарка"
-                             class="news_avatar">
-                        <span class="creator_name">{{ news.user.profile.name }} {{ news.user.profile.surname }}</span>
-                    </a>
+        {% endif %}
+        {% for news in all_news %}
+            <div class="news">
+                <a href="/homepage/{{ news.user.id }}" class="author_url">
+                    <img src="{{ news.user.profile.avatar.url }}" alt="Аватарка"
+                         class="news_avatar">
+                    <span class="creator_name">{{ news.user.profile.name }} {{ news.user.profile.surname }}</span>
+                </a>
 
-                    <div class="news_statistic">
-                        <div class="likes">
-                            <img class="like_img" alt="Сердце" src="{% static 'img/unliked.png' %}">
-                            <span class="likes_counter">{{ news.likes }}</span>
-                        </div>
-                    </div>
-
-                    <br><br>
-                    <div class="news_content">
-                        {{ news.text_content }}<br><br>
-                        <div class="images">
-                            {% for key, value in images.items %}
-                                {% if key == news %}
-                                    {% for image in value %}
-                                        {% for k, v in widths.items %}
-                                            {% if k == news %}
-                                                <img class="attach" src="{{ image.file.url }}"
-                                                     alt="Прикрепленное изображение"
-                                                     style="width: {{ v }}%">
-                                            {% endif %}
-                                        {% endfor %}
+                <br><br>
+                <div class="news_content">
+                    {{ news.text_content }}<br><br>
+                    <div class="images">
+                        {% for key, value in images.items %}
+                            {% if key == news %}
+                                {% for image in value %}
+                                    {% for k, v in widths.items %}
+                                        {% if k == news %}
+                                            <img class="attach" src="{{ image.file.url }}"
+                                                 alt="Прикрепленное изображение"
+                                                 style="width: {{ v }}%">
+                                        {% endif %}
                                     {% endfor %}
-                                {% endif %}
-                            {% endfor %}
-                        </div>
+                                {% endfor %}
+                            {% endif %}
+                        {% endfor %}
                     </div>
                 </div>
-                <br><br>
-            {% endfor %}
-        {% endif %}
+
+                <div class="news_statistic">
+                    <div class="likes">
+                        <img class="like_img {{ forloop.counter }}" alt="Сердце"
+                             src="{% static 'img/unliked.png' %}">
+                        <span class="likes_counter">{{ news.likes }}</span>
+                    </div>
+                    <div class="comments-reposts">
+                        <img class="comment-img" alt="Комментарий"
+                             src="{% static 'img/comment.png' %}">
+                        <img class="repost-img" alt="Репост" src="{% static 'img/repost.png' %}">
+                    </div>
+                </div>
+            </div>
+            <br><br>
+        {% endfor %}
     {% endblock %}
 </div>
 <script type="text/javascript" src="{% static 'js/script.js' %}"></script>

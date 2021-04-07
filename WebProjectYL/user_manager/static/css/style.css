@@ -263,7 +263,7 @@ nav span {
     color: #29a6db;
 }
 
-.author_url:hover{
+.author_url:hover {
     text-decoration: none;
 }
 
@@ -297,8 +297,31 @@ nav span {
 
 .like_img {
     margin-right: 1%;
+}
+
+
+.likes, .comments-reposts {
+    text-align: right;
     position: relative;
-    float: right;
-    width: 30px;
-    height: 30px;
+}
+
+.likes {
+    padding-bottom: 6px;
+}
+
+.like_img, .repost-img, .comment-img {
+    width: 25px;
+    height: 25px;
+}
+
+.repost-img {
+    margin-right: 2%;
+}
+
+.comments-reposts {
+    margin-bottom: 1%;
+}
+.liked {
+    background-image: url("../img/liked.png") ;
+    background-size: 25px;
 }

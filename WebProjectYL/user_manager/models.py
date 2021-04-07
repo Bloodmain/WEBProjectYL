@@ -29,8 +29,12 @@ class Profile(models.Model):
 
     def get_news_interesting_for_user(self):
         # TODO last (News + Reposts)
-        post = sorted(list(self.user.news.all()) + list(self.user.repost.all()), key=lambda x: x.create_date, reverse=True)
+        post = sorted(list(self.user.news.all()) + list(self.user.repost.all()),
+                      key=lambda x: x.create_date, reverse=True)
         return post
+
+    def is_friends(self, other):
+        return False
 
     def __str__(self):
         return self.user.username
@@ -78,8 +82,10 @@ class Repost(models.Model):
 
 
 class Posts(models.Model):
-    news = models.OneToOneField(News, on_delete=models.CASCADE, null=True, blank=True, related_name='post')
-    repost = models.OneToOneField(Repost, on_delete=models.CASCADE, null=True, blank=True, related_name='post')
+    news = models.OneToOneField(News, on_delete=models.CASCADE, null=True, blank=True,
+                                related_name='post')
+    repost = models.OneToOneField(Repost, on_delete=models.CASCADE, null=True, blank=True,
+                                  related_name='post')
 
     class Meta:
         verbose_name = "Пост"
@@ -122,7 +128,7 @@ def save_user_profile(sender, instance, **kwargs):
 @receiver(post_save, sender=Repost)
 def create_post_news(sender, instance, created, **kwargs):
     if created:
-        Posts.objects.create(news=instance)
+        Posts.objects.create(repost=instance)
 
 
 @receiver(post_save, sender=Repost)

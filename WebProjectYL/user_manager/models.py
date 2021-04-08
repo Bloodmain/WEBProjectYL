@@ -99,6 +99,8 @@ class Posts(models.Model):
 class Likes(models.Model):
     user = models.ForeignKey(User, related_name='likes', on_delete=models.CASCADE)
     post = models.ForeignKey(Posts, related_name='likes', on_delete=models.CASCADE)
+    unique_parameter = models.CharField(max_length=50, verbose_name='Уникальные параметр', blank=True, null=False,
+                                        unique=True)
 
 
 class Commentary(models.Model):

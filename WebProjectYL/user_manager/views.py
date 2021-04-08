@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from .forms import UserLoginForm, UserForm, ProfileForm, NewsForm
 from django.shortcuts import render, redirect
 from .models import NewsFile, News, Likes
-from .serializers import LikesSerializer
+from .serializers import LikesSerializer, UserSerializer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -27,15 +27,16 @@ def get_news(all_news):
     return images, width
 
 
-class LikeApiView(APIView):
+class UserApi(APIView):
     def get(self, request):
         if not request.user.is_authenticated:
-            return Response({'Likes': ""})
-        user = request.user
-        likes = Likes.objects.filter(user=user)
-        serializer = LikesSerializer(likes, many=True)
-        return Response({'Likes': serializer.data})
+            return Response({'Error': 'Unauthenticated user'})
+        user = request.user.profile
+        serializer = UserSerializer(user)
+        return Response({'user': serializer.data})
 
+
+class LikeApiView(APIView):
     def get(self, request, unique_parameter):
         like = Likes.objects.filter(unique_parameter=unique_parameter).first()
         print(like)
@@ -45,7 +46,7 @@ class LikeApiView(APIView):
         return Response({"Like": ser.data})
 
     def post(self, request):
-        data = request.data
+        data = request.data.copy()
         data['unique_parameter'] = f"{data['user']}_{data['post']}"
         like = Likes.objects.filter(unique_parameter=data['unique_parameter'])
         if like.count() != 0:

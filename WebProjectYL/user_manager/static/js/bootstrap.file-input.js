@@ -30,7 +30,6 @@
             if (typeof $elem.attr('data-bfi-disabled') != 'undefined') {
                 return;
             }
-            console.log('now')
             // Set the word to be displayed on the button
             var buttonWord = lbl;
 

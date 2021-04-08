@@ -1,6 +1,7 @@
 {% extends "main.html" %}
 <title>Моя страница</title>
 {% block content %}
+    {% csrf_token %}
     <title>Моя страница</title>
     {% load static %}
 
@@ -86,9 +87,9 @@
 
                             <div class="news_statistic">
                                 <div class="likes">
-                                    <img class="like_img {{ forloop.counter }}" alt="Сердце"
+                                    <img class="like_img {{ news.post.id }}" alt="Сердце"
                                          src="{% static 'img/unliked.png' %}">
-                                    <span class="likes_counter">{{ news.likes }}</span>
+                                    <span class="likes_counter-{{ news.post.id }}">{{ news.post.total_likes }}</span>
                                 </div>
                                 <div class="comments-reposts">
                                     <img class="comment-img" alt="Комментарий"

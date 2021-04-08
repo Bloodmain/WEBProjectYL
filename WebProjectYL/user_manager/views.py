@@ -2,12 +2,52 @@ from django.contrib import messages
 from django.contrib.auth import login, logout
 from .forms import UserLoginForm, UserForm, ProfileForm, NewsForm
 from django.shortcuts import render, redirect
-from .models import NewsFile, News
+from .models import NewsFile, News, Likes
+from .serializers import LikesSerializer
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 # Create your views here.
 from django.views import View
 from django.views.generic import FormView
 import os
+
+
+class LikeApiView(APIView):
+    def get(self, request):
+        if not request.user.is_authenticated:
+            return Response({'Likes': ""})
+        user = request.user
+        likes = Likes.objects.filter(user=user)
+        serializer = LikesSerializer(likes, many=True)
+        return Response({'Likes': serializer.data})
+
+    def get(self, request, unique_parameter):
+        like = Likes.objects.filter(unique_parameter=unique_parameter).first()
+        print(like)
+        if not like:
+            return Response({"Error": "The object does not exist"})
+        ser = LikesSerializer(like)
+        return Response({"Like": ser.data})
+
+    def post(self, request):
+        data = request.data
+        data['unique_parameter'] = f"{data['user']}_{data['post']}"
+        like = Likes.objects.filter(unique_parameter=data['unique_parameter'])
+        if like.count() != 0:
+            return Response({"Error": "Object already exists"})
+        serializer = LikesSerializer(data=data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response({"Success": "OK"})
+        return Response({"Error": "Oops"})
+
+    def delete(self, request, unique_parameter):
+        like = Likes.objects.filter(unique_parameter=unique_parameter).first()
+        if not like:
+            return Response({"Error": "The object does not exist"})
+        like.delete()
+        return Response({"Success": "OK"})
 
 
 def news_form(request):

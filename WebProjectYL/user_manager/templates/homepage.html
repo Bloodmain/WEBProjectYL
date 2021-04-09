@@ -92,6 +92,29 @@
                                          src="{% static 'img/repost.png' %}">
                                 </div>
                             </div>
+
+                            <hr class="line">
+                            <div class="comments">
+                                {% if comments|index:forloop.counter0 %}
+                                    {% for comment in comments|index:forloop.counter0 %}
+                                        <a href="/homepage/{{ comment.user.id }}" class="author_url">
+                                            <img src="{{ comment.user.profile.avatar.url }}"
+                                                 alt="Аватарка"
+                                                 class="news_avatar comment-avatar">
+                                            <span class="creator_name">{{ comment.user.profile.name }} {{ comment.user.profile.surname }}</span>
+                                        </a>
+                                        <span class="created_date">{{ comment.create_date }}</span>
+
+                                        <div class="comment-text">
+                                            {{ comment.text }}
+                                        </div>
+
+                                        <br>
+                                    {% endfor %}
+                                {% else %}
+                                    <span>Нет комментариев</span>
+                                {% endif %}
+                            </div>
                         </div>
                         <br><br>
                     {% endfor %}

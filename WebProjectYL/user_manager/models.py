@@ -107,6 +107,7 @@ class Commentary(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comment')
     news = models.ForeignKey(News, on_delete=models.CASCADE, related_name='comment')
     text = models.TextField(max_length=100, null=False, blank=False, default="")
+    create_date = models.DateTimeField(verbose_name='дата создания', default=datetime.datetime.now())
 
     def __str__(self):
         return self.user.username

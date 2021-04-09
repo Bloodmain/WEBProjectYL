@@ -94,6 +94,12 @@ nav span {
     transition: all 400ms;
 }
 
+.created_date {
+    float: right;
+    margin-right: 2%;
+    margin-top: 2%;
+}
+
 .menu_active {
     transform: scaleY(1);
 }
@@ -276,6 +282,10 @@ nav span {
     border: 1px solid black;
 }
 
+.comment-avatar {
+    margin-left: calc(-0.1em - 0.1vw);
+}
+
 .news_content {
     padding-bottom: 10px;
     margin-left: calc(1em + 1vw);
@@ -292,7 +302,6 @@ nav span {
 
 .likes_counter {
     float: right;
-    margin-right: 2%;
 }
 
 .like_img {
@@ -321,7 +330,22 @@ nav span {
 .comments-reposts {
     margin-bottom: 1%;
 }
+
 .liked {
-    background-image: url("../img/liked.png") ;
+    background-image: url("../img/liked.png");
     background-size: 25px;
+}
+
+.line {
+    border: 1px solid black;
+    width: 90%;
+    margin: auto;
+}
+
+.comments {
+    margin-left: calc(1em + 1vw);
+}
+
+.comment-text {
+    margin-left: calc(1em + 1.2vw);
 }

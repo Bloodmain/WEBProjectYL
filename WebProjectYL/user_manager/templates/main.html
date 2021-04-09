@@ -69,6 +69,9 @@
             </form>
             <br>
         {% endif %}
+
+        {% load index %}
+
         {% for news in all_news %}
             <div class="news">
                 <a href="/homepage/{{ news.user.id }}" class="author_url">
@@ -76,23 +79,16 @@
                          class="news_avatar">
                     <span class="creator_name">{{ news.user.profile.name }} {{ news.user.profile.surname }}</span>
                 </a>
+                <span class="created_date">{{ news.create_date }}</span>
 
                 <br><br>
                 <div class="news_content">
                     {{ news.text_content }}<br><br>
                     <div class="images">
-                        {% for key, value in images.items %}
-                            {% if key == news %}
-                                {% for image in value %}
-                                    {% for k, v in widths.items %}
-                                        {% if k == news %}
-                                            <img class="attach" src="{{ image.file.url }}"
-                                                 alt="Прикрепленное изображение"
-                                                 style="width: {{ v }}%">
-                                        {% endif %}
-                                    {% endfor %}
-                                {% endfor %}
-                            {% endif %}
+                        {% for image in images|index:forloop.counter0 %}
+                            <img class="attach" src="{{ image.file.url }}"
+                                 alt="Прикрепленное изображение"
+                                 style="width: {{ widths|index:forloop.parentloop.counter0 }}%">
                         {% endfor %}
                     </div>
                 </div>
@@ -108,6 +104,28 @@
                              src="{% static 'img/comment.png' %}">
                         <img class="repost-img" alt="Репост" src="{% static 'img/repost.png' %}">
                     </div>
+                </div>
+
+                <hr class="line">
+                <div class="comments">
+                    {% if comments|index:forloop.counter0 %}
+                        {% for comment in comments|index:forloop.counter0 %}
+                            <a href="/homepage/{{ comment.user.id }}" class="author_url">
+                                <img src="{{ comment.user.profile.avatar.url }}" alt="Аватарка"
+                                     class="news_avatar comment-avatar">
+                                <span class="creator_name">{{ comment.user.profile.name }} {{ comment.user.profile.surname }}</span>
+                            </a>
+                            <span class="created_date">{{ comment.create_date }}</span>
+
+                            <div class="comment-text">
+                                {{ comment.text }}
+                            </div>
+
+                            <br>
+                        {% endfor %}
+                    {% else %}
+                        <span>Нет комментариев</span>
+                    {% endif %}
                 </div>
             </div>
             <br><br>

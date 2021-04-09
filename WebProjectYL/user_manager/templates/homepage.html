@@ -9,6 +9,7 @@
     <div class="status">
         {{ page_owner.profile.status }}
     </div>
+    {% load index %}
     <table class="profile">
 
         <tr>
@@ -63,24 +64,17 @@
                                      class="news_avatar">
                                 <span class="creator_name">{{ news.user.profile.name }} {{ news.user.profile.surname }}</span>
                             </a>
+                            <span class="created_date">{{ news.create_date }}</span>
 
                             <br><br>
                             <div class="news_content">
                                 {{ news.text_content }}<br><br>
                                 <div class="images">
-                                    {% for key, value in images.items %}
-                                        {% if key == news %}
-                                            {% for image in value %}
-                                                {% for k, v in widths.items %}
-                                                    {% if k == news %}
-                                                        <img class="attach"
-                                                             src="{{ image.file.url }}"
-                                                             alt="Прикрепленное изображение"
-                                                             style="width: {{ v }}%">
-                                                    {% endif %}
-                                                {% endfor %}
-                                            {% endfor %}
-                                        {% endif %}
+                                    {% for image in images|index:forloop.counter0 %}
+                                        <img class="attach" src="{{ image.file.url }}"
+                                             alt="Прикрепленное изображение"
+                                             style="width:
+                                                     {{ widths|index:forloop.parentloop.counter0 }}%">
                                     {% endfor %}
                                 </div>
                             </div>

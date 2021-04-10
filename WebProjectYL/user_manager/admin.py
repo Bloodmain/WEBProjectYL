@@ -22,9 +22,9 @@ class AdminNews(admin.ModelAdmin):
 
 
 class AdminRepost(admin.ModelAdmin):
-    list_display = ['news', 'user', 'create_date']
-    search_fields = ['news', 'user', 'create_date']
-    list_filter = ['news', 'user', 'create_date']
+    list_display = ['posts', 'user', 'create_date']
+    search_fields = ['posts', 'user', 'create_date']
+    list_filter = ['posts', 'user', 'create_date']
 
     class Meta:
         model = Repost
@@ -48,9 +48,9 @@ class AdminNewsFiles(admin.ModelAdmin):
 
 
 class AdminCommentary(admin.ModelAdmin):
-    list_display = ['user', 'news']
-    search_fields = ['user', 'news', 'text']
-    list_filter = ['user', 'news']
+    list_display = ['user', 'post']
+    search_fields = ['user', 'post', 'text']
+    list_filter = ['user', 'post']
 
     class Meta:
         model = Commentary

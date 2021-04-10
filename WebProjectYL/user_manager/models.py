@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 import datetime
+import random
 
 
 # Create your models here.
@@ -28,7 +29,6 @@ class Profile(models.Model):
     birth_date = models.DateField(verbose_name='Дата рождения', null=True, blank=False)
 
     def get_news_interesting_for_user(self):
-        # TODO last (News + Reposts)
         post = sorted(list(self.user.news.all()) + list(self.user.repost.all()), key=lambda x: x.create_date, reverse=True)
         return post
 
@@ -68,7 +68,7 @@ class NewsFile(models.Model):
 
 
 class Repost(models.Model):
-    news = models.ForeignKey(News, on_delete=models.CASCADE, related_name='repost')
+    posts = models.ForeignKey("Posts", on_delete=models.CASCADE, related_name='repost')
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='repost')
     create_date = models.DateTimeField(verbose_name='дата создания', default=datetime.datetime.now())
 
@@ -79,7 +79,7 @@ class Repost(models.Model):
 
 class Posts(models.Model):
     news = models.OneToOneField(News, on_delete=models.CASCADE, null=True, blank=True, related_name='post')
-    repost = models.OneToOneField(Repost, on_delete=models.CASCADE, null=True, blank=True, related_name='post')
+    reposts = models.OneToOneField(Repost, on_delete=models.CASCADE, null=True, blank=True, related_name='post')
 
     class Meta:
         verbose_name = "Пост"
@@ -93,14 +93,15 @@ class Posts(models.Model):
 class Likes(models.Model):
     user = models.ForeignKey(User, related_name='likes', on_delete=models.CASCADE)
     post = models.ForeignKey(Posts, related_name='likes', on_delete=models.CASCADE)
-    unique_parameter = models.CharField(max_length=50, verbose_name='Уникальные параметр', blank=True, null=False,
+    unique_parameter = models.CharField(max_length=50, verbose_name='Уникальный параметр', blank=True, null=False,
                                         unique=True)
 
 
 class Commentary(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comment')
-    news = models.ForeignKey(News, on_delete=models.CASCADE, related_name='comment')
+    post = models.ForeignKey(Posts, on_delete=models.CASCADE, related_name='comment')
     text = models.TextField(max_length=100, null=False, blank=False, default="")
+    unique_parameter = models.IntegerField(verbose_name='Уникальный параметр', default=0, unique=True)
 
     def __str__(self):
         return self.user.username

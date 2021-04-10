@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Likes, Profile
+from .models import Likes, Commentary, Profile
 
 
 class LikesSerializer(serializers.ModelSerializer):
@@ -15,3 +15,12 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
         fields = ['user', 'name', 'surname', 'bio', 'status', 'birth_date']
+
+
+class CommentsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Commentary
+        fields = ['user', 'post', 'text', 'unique_parameter']
+
+    def create(self, validated_data):
+        return Commentary.objects.create(**validated_data)

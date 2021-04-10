@@ -3,8 +3,8 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.models import User
 from .forms import UserLoginForm, UserForm, ProfileForm, NewsForm
 from django.shortcuts import render, redirect
-from .models import NewsFile, News, Likes
-from .serializers import LikesSerializer, UserSerializer
+from .models import NewsFile, News, Likes, Commentary
+from .serializers import LikesSerializer, UserSerializer, CommentsSerializer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -48,7 +48,6 @@ class UserApi(APIView):
 class LikeApiView(APIView):
     def get(self, request, unique_parameter):
         like = Likes.objects.filter(unique_parameter=unique_parameter).first()
-        print(like)
         if not like:
             return Response({"Error": "The object does not exist"})
         ser = LikesSerializer(like)
@@ -64,7 +63,7 @@ class LikeApiView(APIView):
         if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response({"Success": "OK"})
-        return Response({"Error": "Oops"})
+        return Response({"Error": "Bad request"})
 
     def delete(self, request, unique_parameter):
         like = Likes.objects.filter(unique_parameter=unique_parameter).first()
@@ -72,6 +71,46 @@ class LikeApiView(APIView):
             return Response({"Error": "The object does not exist"})
         like.delete()
         return Response({"Success": "OK"})
+
+
+class CommentaryAPI(APIView):
+    def get(self, request, user_id, post_id, unique_parameter):
+        comment = Commentary.objects.filter(user=user_id, post=post_id, unique_parameter=unique_parameter).first()
+        if not comment:
+            return Response({"Error": "The object does not exist"})
+        ser_comment = CommentsSerializer(comment)
+        return Response({"Comment": ser_comment.data})
+
+    def post(self, request):
+        data = request.data
+        if any([i not in data for i in ['user', 'post', 'text']]):
+            return Response({"Error": "Not all parameters are listed"})
+        comments = Commentary.objects.filter(user=data['user'], post=data['post'])
+        mx_number = 0
+        for comment in comments:
+            mx_number = max(mx_number, comment.unique_parameter)
+        mx_number += 1
+        data['unique_parameter'] = mx_number
+        print(data)
+        ser = CommentsSerializer(data=data)
+        if ser.is_valid(raise_exception=True):
+            ser.save()
+            return Response({"Success": "OK", "Number comment": str(mx_number)})
+        return Response({"Error": "Bad request"})
+
+    def delete(self, request, user_id, post_id, unique_parameter):
+        comment = Commentary.objects.filter(user=user_id, post=post_id, unique_parameter=unique_parameter).first()
+        if not comment:
+            return Response({"Error": "The object does not exist"})
+        comment.delete()
+        return Response({"Success": "OK"})
+
+
+class CommentaryListAPI(APIView):
+    def get(self, request, user_id, post_id):
+        comments = Commentary.objects.filter(user=user_id, post=post_id)
+        ser = CommentsSerializer(comments, many=True)
+        return Response({"Comments": ser.data})
 
 
 def news_form(request):

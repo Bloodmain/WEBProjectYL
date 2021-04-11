@@ -12,5 +12,5 @@ urlpatterns = [
     path('api/likes/<str:unique_parameter>', views.LikeApiView.as_view()),
     path('api/comments/', views.CommentaryAPI.as_view()),
     path('api/comments/<int:post_id>/<int:user_id>/', views.CommentaryListAPI.as_view()),
-    path('api/comments/<int:post_id>/<int:user_id>/<str:unique_parameter>', views.CommentaryAPI.as_view())
+    path('api/comments/<str:unique_parameter>/', views.CommentaryAPI.as_view())
 ]

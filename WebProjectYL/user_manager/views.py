@@ -42,8 +42,8 @@ class LikeApiView(APIView):
 
 
 class CommentaryAPI(APIView):
-    def get(self, request, user_id, post_id, unique_parameter):
-        comment = Commentary.objects.filter(user=user_id, post=post_id, unique_parameter=unique_parameter).first()
+    def get(self, request, unique_parameter):
+        comment = Commentary.objects.filter(unique_parameter=unique_parameter).first()
         if not comment:
             return Response({"Error": "The object does not exist"})
         ser_comment = CommentsSerializer(comment)
@@ -58,15 +58,15 @@ class CommentaryAPI(APIView):
         for comment in comments:
             mx_number = max(mx_number, int(comment.unique_parameter.split('_')[2]))
         mx_number += 1
-        data['unique_parameter'] = f"{data['user']}_{data['post']}_{mx_number}"
+        data['unique_parameter'] = f"{data['post']}_{data['user']}_{mx_number}"
         ser = CommentsSerializer(data=data)
         if ser.is_valid(raise_exception=True):
             ser.save()
             return Response({"Success": "OK", "Number comment": data['unique_parameter']})
         return Response({"Error": "Bad request"})
 
-    def delete(self, request, user_id, post_id, unique_parameter):
-        comment = Commentary.objects.filter(user=user_id, post=post_id, unique_parameter=unique_parameter).first()
+    def delete(self, request, unique_parameter):
+        comment = Commentary.objects.filter(unique_parameter=unique_parameter).first()
         if not comment:
             return Response({"Error": "The object does not exist"})
         comment.delete()

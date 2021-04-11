@@ -56,14 +56,13 @@ class CommentaryAPI(APIView):
         comments = Commentary.objects.filter(user=data['user'], post=data['post'])
         mx_number = 0
         for comment in comments:
-            mx_number = max(mx_number, comment.unique_parameter)
+            mx_number = max(mx_number, int(comment.unique_parameter.split('_')[2]))
         mx_number += 1
-        data['unique_parameter'] = mx_number
-        print(data)
+        data['unique_parameter'] = f"{data['user']}_{data['post']}_{mx_number}"
         ser = CommentsSerializer(data=data)
         if ser.is_valid(raise_exception=True):
             ser.save()
-            return Response({"Success": "OK", "Number comment": str(mx_number)})
+            return Response({"Success": "OK", "Number comment": data['unique_parameter']})
         return Response({"Error": "Bad request"})
 
     def delete(self, request, user_id, post_id, unique_parameter):

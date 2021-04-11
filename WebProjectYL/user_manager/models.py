@@ -101,7 +101,7 @@ class Commentary(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comment')
     post = models.ForeignKey(Posts, on_delete=models.CASCADE, related_name='comment')
     text = models.TextField(max_length=100, null=False, blank=False, default="")
-    unique_parameter = models.IntegerField(verbose_name='Уникальный параметр', default=0, unique=True)
+    unique_parameter = models.CharField(max_length=100, verbose_name='Уникальный параметр', unique=True)
     create_date = models.DateTimeField(verbose_name='дата создания', default=datetime.datetime.now())
 
     def __str__(self):

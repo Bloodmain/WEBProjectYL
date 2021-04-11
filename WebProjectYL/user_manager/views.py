@@ -26,7 +26,7 @@ def get_news(all_news):
             if url.rsplit('.', 1)[-1] in {'png', 'jpg', 'jpeg'}:
                 to_add.append(file)
         images.append(to_add)
-        comments.append(news.comment.all())
+        comments.append(news.post.comment.all())
 
         if to_add:
             width.append(100 // min(len(to_add), 3))
@@ -74,32 +74,26 @@ class LikeApiView(APIView):
 
 
 class CommentaryAPI(APIView):
-    def get(self, request, user_id, post_id, unique_parameter):
-        comment = Commentary.objects.filter(user=user_id, post=post_id, unique_parameter=unique_parameter).first()
+    def get(self, request, pk):
+        comment = Commentary.objects.filter(pk=pk).first()
         if not comment:
             return Response({"Error": "The object does not exist"})
         ser_comment = CommentsSerializer(comment)
         return Response({"Comment": ser_comment.data})
 
     def post(self, request):
-        data = request.data
+        data = request.data.copy()
         if any([i not in data for i in ['user', 'post', 'text']]):
-            return Response({"Error": "Not all parameters are listed"})
+            return Response({"Error": "Not all parameters were used"})
         comments = Commentary.objects.filter(user=data['user'], post=data['post'])
-        mx_number = 0
-        for comment in comments:
-            mx_number = max(mx_number, comment.unique_parameter)
-        mx_number += 1
-        data['unique_parameter'] = mx_number
-        print(data)
         ser = CommentsSerializer(data=data)
         if ser.is_valid(raise_exception=True):
             ser.save()
-            return Response({"Success": "OK", "Number comment": str(mx_number)})
+            return Response({"Success": "OK"})
         return Response({"Error": "Bad request"})
 
-    def delete(self, request, user_id, post_id, unique_parameter):
-        comment = Commentary.objects.filter(user=user_id, post=post_id, unique_parameter=unique_parameter).first()
+    def delete(self, request, pk):
+        comment = Commentary.objects.filter(pk=pk).first()
         if not comment:
             return Response({"Error": "The object does not exist"})
         comment.delete()
@@ -111,6 +105,15 @@ class CommentaryListAPI(APIView):
         comments = Commentary.objects.filter(user=user_id, post=post_id)
         ser = CommentsSerializer(comments, many=True)
         return Response({"Comments": ser.data})
+
+
+class NewsAPI(APIView):
+    def delete(self, request, news_id):
+        news = News.objects.filter(id=news_id).first()
+        if not news:
+            return Response({"Error": "The object does not exist"})
+        news.delete()
+        return Response({"Success": "OK"})
 
 
 def news_form(request):

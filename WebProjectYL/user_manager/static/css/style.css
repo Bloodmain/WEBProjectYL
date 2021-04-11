@@ -283,7 +283,7 @@ nav span {
 }
 
 .comment-avatar {
-    margin-left: calc(-0.1em - 0.1vw);
+    margin-left: 1%;
 }
 
 .news_content {
@@ -304,12 +304,7 @@ nav span {
     float: right;
 }
 
-.like_img {
-    margin-right: 1%;
-}
-
-
-.likes, .comments-reposts {
+.likes {
     text-align: right;
     position: relative;
 }
@@ -343,9 +338,70 @@ nav span {
 }
 
 .comments {
+    max-height: 250px;
     margin-left: calc(1em + 1vw);
+    overflow-y: scroll;
+}
+
+.comments::-webkit-scrollbar {
+    border-radius: 20px;
+    width: 10px;
+}
+
+.comments::-webkit-scrollbar-thumb {
+    background: #ffffff;
+    border-radius: 20px;
+    border: 1px solid black;
 }
 
 .comment-text {
-    margin-left: calc(1em + 1.2vw);
+    margin-left: calc(1.7em + 1.2vw);
+    word-break:break-all;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.comment-text::-webkit-scrollbar {
+    border-radius: 20px;
+    width: 10px;
+}
+
+.comment-text::-webkit-scrollbar-thumb {
+    background: #ffffff;
+    border-radius: 20px;
+    border: 1px solid black;
+}
+
+.comments-creation {
+    margin-top: 2%;
+    width: 95%;
+    height: 10%;
+}
+
+.comment-input {
+    margin-left: 1%;
+    resize: none;
+    height: 40px;
+    transition: all 400ms;
+}
+
+.focused {
+    height: 100px;
+}
+
+.comments-creation-denied {
+    width: 95%;
+    margin-top: 1%;
+    margin-bottom: 1%;
+}
+
+.delete-news, .delete-comment {
+    color: #53a3ff;
+    float: right;
+    margin-right: 2%;
+    margin-top: -2%;
+}
+
+.delete-news:hover, .delete-comment:hover {
+    color: #b1deff;
 }

@@ -58,15 +58,25 @@
                 <br>
                 <div class="owner_news">
                     {% for news in all_news %}
-                        <div class="news">
+                        <div class="news {{ news.post.id }}">
                             <a href="/homepage/{{ news.user.id }}" class="author_url">
                                 <img src="{{ news.user.profile.avatar.url }}" alt="Аватарка"
                                      class="news_avatar">
                                 <span class="creator_name">{{ news.user.profile.name }} {{ news.user.profile.surname }}</span>
                             </a>
                             <span class="created_date">{{ news.create_date }}</span>
+                            <br>
+                            {% if news.user == user %}
+                                <btn class="delete-news {{ news.id }} {{ news.post.id }}"
+                                     title="Удалить запись">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26"
+                                         fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
+                                        <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                                    </svg>
+                                </btn>
+                            {% endif %}
 
-                            <br><br>
+                            <br>
                             <div class="news_content">
                                 {{ news.text_content }}<br><br>
                                 <div class="images">
@@ -79,41 +89,71 @@
                                 </div>
                             </div>
 
-                            <div class="news_statistic">
+                            {% if user.is_authenticated %}
                                 <div class="likes">
+                                    <img class="repost-img" alt="Репост"
+                                         src="{% static 'img/repost.png' %}">
                                     <img class="like_img {{ news.post.id }}" alt="Сердце"
                                          src="{% static 'img/unliked.png' %}">
                                     <span class="likes_counter-{{ news.post.id }}">{{ news.post.total_likes }}</span>
                                 </div>
-                                <div class="comments-reposts">
-                                    <img class="comment-img" alt="Комментарий"
-                                         src="{% static 'img/comment.png' %}">
-                                    <img class="repost-img" alt="Репост"
-                                         src="{% static 'img/repost.png' %}">
-                                </div>
-                            </div>
+                            {% endif %}
 
                             <hr class="line">
                             <div class="comments">
-                                {% if comments|index:forloop.counter0 %}
-                                    {% for comment in comments|index:forloop.counter0 %}
-                                        <a href="/homepage/{{ comment.user.id }}" class="author_url">
-                                            <img src="{{ comment.user.profile.avatar.url }}"
-                                                 alt="Аватарка"
-                                                 class="news_avatar comment-avatar">
-                                            <span class="creator_name">{{ comment.user.profile.name }} {{ comment.user.profile.surname }}</span>
-                                        </a>
-                                        <span class="created_date">{{ comment.create_date }}</span>
-
-                                        <div class="comment-text">
-                                            {{ comment.text }}
+                                {% if user.is_authenticated %}
+                                    <div class="comments-creation input-group mb-3">
+                            <textarea class="form-control comment-input {{ news.post.id }}"
+                                      placeholder="Текст комментария"
+                                      aria-label="Текст комментария"
+                                      aria-describedby="button-addon2"></textarea>
+                                        <div class="input-group-append">
+                                            <button type="button"
+                                                    class="btn btn-outline-secondary send-comment {{ news.post.id }}">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="20"
+                                                     height="20 "
+                                                     fill="currentColor" class="bi bi-cursor"
+                                                     viewBox="0 0 16 16">
+                                                    <path d="M14.082 2.182a.5.5 0 0 1 .103.557L8.528 15.467a.5.5 0 0 1-.917-.007L5.57 10.694.803 8.652a.5.5 0 0 1-.006-.916l12.728-5.657a.5.5 0 0 1 .556.103zM2.25 8.184l3.897 1.67a.5.5 0 0 1 .262.263l1.67 3.897L12.743 3.52 2.25 8.184z"/>
+                                                </svg>
+                                            </button>
                                         </div>
-
-                                        <br>
-                                    {% endfor %}
+                                    </div>
                                 {% else %}
-                                    <span>Нет комментариев</span>
+                                    <div class="alert alert-info comments-creation-denied">
+                                        Пожалуйста,
+                                        зарегистрируйтесь, чтобы оставлять
+                                        комментарии.
+                                    </div>
                                 {% endif %}
+
+                                {% for comment in comments|index:forloop.counter0 %}
+                                    <a href="/homepage/{{ comment.user.id }}" class="author_url">
+                                        <img src="{{ comment.user.profile.avatar.url }}"
+                                             alt="Аватарка"
+                                             class="news_avatar comment-avatar">
+                                        <span class="creator_name">{{ comment.user.profile.name }} {{ comment.user.profile.surname }}</span>
+                                    </a>
+                                    <span class="created_date">{{ comment.create_date }}</span>
+                                    <br>
+                                    {% if comment.user == user %}
+                                        <btn class="delete-comment {{ comment.id }} {{ news.post.id }}"
+                                             title="Удалить комментарий">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="26"
+                                                 height="26"
+                                                 fill="currentColor" class="bi bi-x"
+                                                 viewBox="0 0 16 16">
+                                                <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                                            </svg>
+                                        </btn>
+                                    {% endif %}
+
+                                    <div class="comment-text">
+                                        {{ comment.text }}
+                                    </div>
+
+                                    <br>
+                                {% endfor %}
                             </div>
                         </div>
                         <br><br>

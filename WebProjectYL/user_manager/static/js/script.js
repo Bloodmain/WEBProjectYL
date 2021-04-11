@@ -24,6 +24,16 @@ $('.news_input').focusout(function () {
     $('.file-input-name').toggleClass('opened', false);
 });
 
+$('.comment-input').focusin(function () {
+    $(this).toggleClass('focused', true);
+})
+
+$('.comment-input').focusout(function () {
+    setTimeout(() => {
+        $(this).toggleClass('focused', false);
+    }, 100);
+})
+
 function csrfSafeMethod(method) {
     return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
 }
@@ -33,8 +43,8 @@ function sameOrigin(url) {
     var protocol = document.location.protocol;
     var sr_origin = '//' + host;
     var origin = protocol + sr_origin;
-    return (url == origin || url.slice(0, origin.length + 1) == origin + '/') ||
-        (url == sr_origin || url.slice(0, sr_origin.length + 1) == sr_origin + '/') ||
+    return (url === origin || url.slice(0, origin.length + 1) === origin + '/') ||
+        (url === sr_origin || url.slice(0, sr_origin.length + 1) === sr_origin + '/') ||
         !(/^(\/\/|http:|https:).*/.test(url));
 }
 
@@ -67,7 +77,8 @@ $('.like_img').click(function () {
             });
             likes_counter.text(parseInt(likes_counter.text()) - 1);
         } else {
-            $.post('/api/likes', {user: user_id, post: news_id}, function (data) {})
+            $.post('/api/likes', {user: user_id, post: news_id}, function (data) {
+            })
             likes_counter.text(parseInt(likes_counter.text()) + 1);
         }
     })
@@ -88,4 +99,99 @@ $(document).ready(function () {
             })
         })
     })
+})
+
+$('.send-comment').click(function () {
+    var post_id = $(this).attr('class').split(' ')[3];
+    $.get('/api/user', {}, function (data) {
+        if ('Error' in data)
+            return;
+
+        var user_id = data['user']['user'];
+        $('.comment-input').each(function (index, el) {
+            var id = el.classList[2];
+            if (id === post_id) {
+                var text = el.value;
+                $.post('/api/comments', {user: user_id, post: post_id, text: text}, function () {
+                })
+                el.value = '';
+                return;
+            }
+        })
+
+        remember_offset(post_id);
+
+        setTimeout(() => {
+            location.reload();
+        }, 100);
+    })
+})
+
+function remember_offset(post_id) {
+    $('.news').each(function (index, el) {
+        var id = el.classList[1];
+        if (id === post_id) {
+            document.cookie = 'reload_offset=' + el.offsetTop
+            return
+        }
+    })
+}
+
+function get_cookie(cookie_name) {
+    var results = document.cookie.match('(^|;) ?' + cookie_name + '=([^;]*)(;|$)');
+
+    if (results)
+        return (unescape(results[2]));
+    else
+        return null;
+}
+
+function delete_cookie(cookie_name) {
+    var cookie_date = new Date();
+    cookie_date.setTime(cookie_date.getTime() - 1);
+    document.cookie = cookie_name += "=; expires=" + cookie_date.toGMTString();
+}
+
+$(function () {
+    var cookie = get_cookie('reload_offset')
+    $('.cont').animate({scrollTop: cookie}, 0);
+    delete_cookie('reload_offset')
+})
+
+$('.delete-news').click(function () {
+    if (confirm('Вы действительно хотите удалить эту запись?')) {
+        var news_id = $(this).attr('class').split(' ')[1];
+        $.ajax({
+            type: 'DELETE',
+            url: '/api/news/' + news_id,
+            data: {},
+            dataType: 'json',
+        });
+
+        var post_id = $(this).attr('class').split(' ')[2];
+        remember_offset(post_id);
+
+        setTimeout(() => {
+            location.reload();
+        }, 100);
+    }
+})
+
+$('.delete-comment').click(function () {
+    if (confirm('Вы действительно хотите удалить этот комментарий?')) {
+        var comment_id = $(this).attr('class').split(' ')[1];
+        $.ajax({
+            type: 'DELETE',
+            url: '/api/comments/' + comment_id,
+            data: {},
+            dataType: 'json',
+        });
+
+        var post_id = $(this).attr('class').split(' ')[2];
+        remember_offset(post_id);
+
+        setTimeout(() => {
+            location.reload();
+        }, 100);
+    }
 })

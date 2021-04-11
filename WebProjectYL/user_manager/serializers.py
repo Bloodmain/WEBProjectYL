@@ -20,7 +20,7 @@ class UserSerializer(serializers.ModelSerializer):
 class CommentsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Commentary
-        fields = ['user', 'post', 'text', 'unique_parameter']
+        fields = ['user', 'post', 'text']
 
     def create(self, validated_data):
         return Commentary.objects.create(**validated_data)

@@ -14,7 +14,7 @@ from django.views.generic import FormView
 import os
 
 
-def get_news(all_news):
+def get_news_data(all_news):
     images = []
     width = []
     comments = []
@@ -134,7 +134,7 @@ def news_form(request):
     else:
         all_news = sorted(News.objects.all(), key=lambda x: x.create_date, reverse=True)
 
-    images, width, comments = get_news(all_news)
+    images, width, comments = get_news_data(all_news)
 
     return render(request, 'main.html',
                   {'form': form,
@@ -198,7 +198,7 @@ def homepage(request, user_id):
     user = User.objects.get(id=user_id)
     is_friends = request.user.is_authenticated and user.profile.is_friends(request.user)
     all_news = sorted(user.news.all(), key=lambda x: x.create_date, reverse=True)
-    images, width, comments = get_news(all_news)
+    images, width, comments = get_news_data(all_news)
     return render(request, 'homepage.html', {
         'page_owner': user,
         'is_friends': is_friends,

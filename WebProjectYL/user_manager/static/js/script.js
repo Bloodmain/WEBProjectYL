@@ -74,12 +74,14 @@ $('.like_img').click(function () {
                 url: '/api/likes/' + user_id + '_' + news_id,
                 data: {},
                 dataType: 'json',
+                success: function () {
+                    likes_counter.text(parseInt(likes_counter.text()) - 1);
+                }
             });
-            likes_counter.text(parseInt(likes_counter.text()) - 1);
         } else {
             $.post('/api/likes', {user: user_id, post: news_id}, function (data) {
+                likes_counter.text(parseInt(likes_counter.text()) + 1);
             })
-            likes_counter.text(parseInt(likes_counter.text()) + 1);
         }
     })
 })
@@ -113,17 +115,13 @@ $('.send-comment').click(function () {
             if (id === post_id) {
                 var text = el.value;
                 $.post('/api/comments', {user: user_id, post: post_id, text: text}, function () {
+                    remember_offset(post_id);
+                    location.reload()
                 })
                 el.value = '';
                 return;
             }
         })
-
-        remember_offset(post_id);
-
-        setTimeout(() => {
-            location.reload();
-        }, 100);
     })
 })
 
@@ -160,38 +158,36 @@ $(function () {
 
 $('.delete-news').click(function () {
     if (confirm('Вы действительно хотите удалить эту запись?')) {
-        var news_id = $(this).attr('class').split(' ')[1];
+        var element = $(this)
+        var news_id = element.attr('class').split(' ')[1];
         $.ajax({
             type: 'DELETE',
             url: '/api/news/' + news_id,
             data: {},
             dataType: 'json',
+            success: function () {
+                var post_id = element.attr('class').split(' ')[2];
+                remember_offset(post_id);
+                location.reload()
+            }
         });
-
-        var post_id = $(this).attr('class').split(' ')[2];
-        remember_offset(post_id);
-
-        setTimeout(() => {
-            location.reload();
-        }, 100);
     }
 })
 
 $('.delete-comment').click(function () {
     if (confirm('Вы действительно хотите удалить этот комментарий?')) {
-        var comment_id = $(this).attr('class').split(' ')[1];
+        var element = $(this)
+        var comment_id = element.attr('class').split(' ')[1];
         $.ajax({
             type: 'DELETE',
             url: '/api/comments/' + comment_id,
             data: {},
             dataType: 'json',
+            success: function () {
+                var post_id = element.attr('class').split(' ')[2];
+                remember_offset(post_id);
+                location.reload()
+            }
         });
-
-        var post_id = $(this).attr('class').split(' ')[2];
-        remember_offset(post_id);
-
-        setTimeout(() => {
-            location.reload();
-        }, 100);
     }
 })

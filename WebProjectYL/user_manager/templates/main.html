@@ -7,6 +7,8 @@
           href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
           integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
           crossorigin="anonymous">
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script type="text/javascript" src="{% static 'js/bootstrap.file-input.js' %}"></script>
@@ -17,7 +19,13 @@
     <br>
     <nav>
         <div class="logo scalable">D&K</div>
-        <a href="/homepage/" class="scalable">Моя страница</a> <span class="scalable">|</span>
+        {% if user.is_authenticated %}
+            <a href="/homepage/{{ user.id }}" class="scalable">Моя страница</a>
+            <span class="scalable">|</span>
+        {% else %}
+            <a href="/homepage/unknown" class="scalable">Моя страница</a>
+            <span class="scalable">|</span>
+        {% endif %}
         <a href="/messages/" class="scalable">Сообщения</a> <span class="scalable">|</span>
         <a href="/" class="scalable">Новости</a>
         <div class="menu_btn scalable">Меню</div>
@@ -62,44 +70,117 @@
                 <button type="submit" class="news_creation btn btn-primary">Создать</button>
             </form>
             <br>
-            {% for news in all_news %}
-                <div class="news">
-                    <a href="/homepage/" class="author_url">
-                        <img src="{{ news.user.profile.avatar.url }}" alt="Аватарка"
-                             class="news_avatar">
-                        <span class="creator_name">{{ news.user.profile.name }} {{ news.user.profile.surname }}</span>
-                    </a>
+        {% endif %}
 
-                    <div class="news_statistic">
-                        <div class="likes">
-                            <img class="like_img" alt="Сердце" src="{% static 'img/unliked.png' %}">
-                            <span class="likes_counter">{{ news.likes }}</span>
-                        </div>
+        {% load index %}
+        {% load file_name %}
+
+        {% for news in all_news %}
+            <div class="news {{ news.post.id }}">
+                <a href="/homepage/{{ news.user.id }}" class="author_url">
+                    <img src="{{ news.user.profile.avatar.url }}" alt="Аватарка"
+                         class="news_avatar">
+                    <span class="creator_name">{{ news.user.profile.name }} {{ news.user.profile.surname }}</span>
+                </a>
+                <span class="created_date">{{ news.create_date }}</span>
+                <br>
+                {% if news.user == user %}
+                    <btn class="delete-news {{ news.id }} {{ news.post.id }}" title="Удалить запись">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26"
+                             fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
+                            <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                        </svg>
+                    </btn>
+                {% endif %}
+
+                <br>
+                <div class="news_content">
+                    {{ news.text_content }}<br><br>
+                    <div class="images">
+                        {% for image in images|index:forloop.counter0 %}
+                            <img class="attach" src="{{ image.file.url }}"
+                                 alt="Прикрепленное изображение"
+                                 style="width: {{ widths|index:forloop.parentloop.counter0 }}%">
+                        {% endfor %}
                     </div>
-
-                    <br><br>
-                    <div class="news_content">
-                        {{ news.text_content }}<br><br>
-                        <div class="images">
-                            {% for key, value in images.items %}
-                                {% if key == news %}
-                                    {% for image in value %}
-                                        {% for k, v in widths.items %}
-                                            {% if k == news %}
-                                                <img class="attach" src="{{ image.file.url }}"
-                                                     alt="Прикрепленное изображение"
-                                                     style="width: {{ v }}%">
-                                            {% endif %}
-                                        {% endfor %}
-                                    {% endfor %}
-                                {% endif %}
-                            {% endfor %}
-                        </div>
+                    <br>
+                    <div class="all-files">
+                        {% for file in news.files.all %}
+                            <a href="{{ file.file.url }}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                     fill="currentColor" class="bi bi-download" viewBox="0 0 16 16">
+                                    <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+                                    <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
+                                </svg>
+                                {{ file.file.url|file_name }}</a>
+                            <br>
+                        {% endfor %}
                     </div>
                 </div>
-                <br><br>
-            {% endfor %}
-        {% endif %}
+
+                {% if user.is_authenticated %}
+                    <div class="likes">
+                        <img class="repost-img" alt="Репост" src="{% static 'img/repost.png' %}">
+                        <img class="like_img {{ news.post.id }}" alt="Сердце"
+                             src="{% static 'img/unliked.png' %}">
+                        <span class="likes_counter-{{ news.post.id }}">{{ news.post.total_likes }}</span>
+                    </div>
+                {% endif %}
+
+                <hr class="line">
+                <div class="comments">
+                    {% if user.is_authenticated %}
+                        <div class="comments-creation input-group mb-3">
+                            <textarea class="form-control comment-input {{ news.post.id }}"
+                                      placeholder="Текст комментария"
+                                      aria-label="Текст комментария"
+                                      aria-describedby="button-addon2"></textarea>
+                            <div class="input-group-append">
+                                <button type="button"
+                                        class="btn btn-outline-secondary send-comment {{ news.post.id }}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20 "
+                                         fill="currentColor" class="bi bi-cursor"
+                                         viewBox="0 0 16 16">
+                                        <path d="M14.082 2.182a.5.5 0 0 1 .103.557L8.528 15.467a.5.5 0 0 1-.917-.007L5.57 10.694.803 8.652a.5.5 0 0 1-.006-.916l12.728-5.657a.5.5 0 0 1 .556.103zM2.25 8.184l3.897 1.67a.5.5 0 0 1 .262.263l1.67 3.897L12.743 3.52 2.25 8.184z"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info comments-creation-denied">Пожалуйста,
+                            зарегистрируйтесь, чтобы оставлять
+                            комментарии.
+                        </div>
+                    {% endif %}
+
+                    {% for comment in comments|index:forloop.counter0 %}
+                        <a href="/homepage/{{ comment.user.id }}" class="author_url">
+                            <img src="{{ comment.user.profile.avatar.url }}" alt="Аватарка"
+                                 class="news_avatar comment-avatar">
+                            <span class="creator_name">{{ comment.user.profile.name }} {{ comment.user.profile.surname }}</span>
+                        </a>
+                        <span class="created_date">{{ comment.create_date }}</span>
+                        <br>
+                        {% if comment.user == user %}
+                            <btn class="delete-comment {{ comment.id }} {{ news.post.id }}"
+                                 title="Удалить комментарий">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26"
+                                     fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
+                                    <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                                </svg>
+                            </btn>
+                        {% endif %}
+
+                        <div class="comment-text">
+                            {{ comment.text }}
+                        </div>
+
+                        <br>
+                    {% endfor %}
+                </div>
+            </div>
+            <br><br>
+        {% endfor %}
     {% endblock %}
 </div>
 <script type="text/javascript" src="{% static 'js/script.js' %}"></script>

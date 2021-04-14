@@ -1,9 +1,10 @@
 from django.contrib import messages
 from django.contrib.auth import login, logout
+from django.contrib.auth.models import User
 from .forms import UserLoginForm, UserForm, ProfileForm, NewsForm
 from django.shortcuts import render, redirect
 from .models import NewsFile, News, Likes, Commentary
-from .serializers import LikesSerializer, CommentsSerializer
+from .serializers import LikesSerializer, UserSerializer, CommentsSerializer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -11,6 +12,37 @@ from rest_framework.views import APIView
 from django.views import View
 from django.views.generic import FormView
 import os
+
+
+def get_news_data(all_news):
+    images = []
+    width = []
+    comments = []
+
+    for news in all_news:
+        to_add = []
+        for file in news.files.all():
+            url = file.file.url
+            if url.rsplit('.', 1)[-1] in {'png', 'jpg', 'jpeg'}:
+                to_add.append(file)
+        images.append(to_add)
+        comments.append(news.post.comment.all())
+
+        if to_add:
+            width.append(100 // min(len(to_add), 3))
+        else:
+            width.append(-1)
+
+    return images, width, comments
+
+
+class UserApi(APIView):
+    def get(self, request):
+        if not request.user.is_authenticated:
+            return Response({'Error': 'Unauthenticated user'})
+        user = request.user.profile
+        serializer = UserSerializer(user)
+        return Response({'user': serializer.data})
 
 
 class LikeApiView(APIView):
@@ -22,7 +54,7 @@ class LikeApiView(APIView):
         return Response({"Like": ser.data})
 
     def post(self, request):
-        data = request.data
+        data = request.data.copy()
         data['unique_parameter'] = f"{data['user']}_{data['post']}"
         like = Likes.objects.filter(unique_parameter=data['unique_parameter'])
         if like.count() != 0:
@@ -50,19 +82,14 @@ class CommentaryAPI(APIView):
         return Response({"Comment": ser_comment.data})
 
     def post(self, request):
-        data = request.data
+        data = request.data.copy()
         if any([i not in data for i in ['user', 'post', 'text']]):
-            return Response({"Error": "Not all parameters are listed"})
+            return Response({"Error": "Not all parameters were used"})
         comments = Commentary.objects.filter(user=data['user'], post=data['post'])
-        mx_number = 0
-        for comment in comments:
-            mx_number = max(mx_number, int(comment.unique_parameter.split('_')[2]))
-        mx_number += 1
-        data['unique_parameter'] = f"{data['post']}_{data['user']}_{mx_number}"
         ser = CommentsSerializer(data=data)
         if ser.is_valid(raise_exception=True):
             ser.save()
-            return Response({"Success": "OK", "Number comment": data['unique_parameter']})
+            return Response({"Success": "OK"})
         return Response({"Error": "Bad request"})
 
     def delete(self, request, pk):
@@ -80,6 +107,15 @@ class CommentaryListAPI(APIView):
         return Response({"Comments": ser.data})
 
 
+class NewsAPI(APIView):
+    def delete(self, request, news_id):
+        news = News.objects.filter(id=news_id).first()
+        if not news:
+            return Response({"Error": "The object does not exist"})
+        news.delete()
+        return Response({"Success": "OK"})
+
+
 def news_form(request):
     if request.method == 'POST':
         form = NewsForm(request.POST, request.FILES)
@@ -92,25 +128,20 @@ def news_form(request):
             return redirect('/')
     else:
         form = NewsForm()
+
     if request.user.is_authenticated:
         all_news = request.user.profile.get_news_interesting_for_user()
-        images = {}
-        width = {}
-        for news in all_news:
-            for file in news.files.all():
-                url = file.file.url
-                if url.rsplit('.', 1)[-1] in {'png', 'jpg', 'jpeg'}:
-                    images[news] = images.get(news, set()) | {file}
-            if news in images:
-                width[news] = 100 // min(len(images[news]), 3)
-        return render(request, 'main.html',
-                      {'form': form,
-                       'all_news': all_news,
-                       'images': images,
-                       'widths': width})
     else:
-        return render(request, 'main.html',
-                      {'form': form, 'all_news': [], 'images': {}, 'widths': {}})
+        all_news = sorted(News.objects.all(), key=lambda x: x.create_date, reverse=True)
+
+    images, width, comments = get_news_data(all_news)
+
+    return render(request, 'main.html',
+                  {'form': form,
+                   'all_news': all_news,
+                   'images': images,
+                   'widths': width,
+                   'comments': comments})
 
 
 class LoginView(FormView):
@@ -157,3 +188,21 @@ def register(request):
         'user_form': user_form,
         'profile_form': profile_form
     })
+
+
+def unknown_homepage(request):
+    return render(request, 'unknown_homepage.html', {})
+
+
+def homepage(request, user_id):
+    user = User.objects.get(id=user_id)
+    is_friends = request.user.is_authenticated and user.profile.is_friends(request.user)
+    all_news = sorted(user.news.all(), key=lambda x: x.create_date, reverse=True)
+    images, width, comments = get_news_data(all_news)
+    return render(request, 'homepage.html', {
+        'page_owner': user,
+        'is_friends': is_friends,
+        'images': images,
+        'widths': width,
+        'all_news': all_news,
+        'comments': comments})

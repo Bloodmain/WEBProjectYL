@@ -1,0 +1,78 @@
+.status {
+    text-align: right;
+    font-family: "Segoe Script";
+}
+
+.person {
+    width: fit-content;
+    margin: auto;
+    text-align: center;
+    font-size: 1.5em;
+}
+
+.person-info {
+    width: 80%;
+}
+
+.ava {
+    background-position: center;
+    width: calc(5em + 3vw);
+    height: calc(10em + 3vh);
+    background-size: calc(5em + 3vw) calc(10em + 3vh);
+}
+
+.birth-date {
+    font-family: "Segoe Print";
+    font-size: 14px;
+    text-align: right;
+}
+
+.bio-border {
+    overflow-y: scroll;
+    width: 80%;
+    height: 100px;
+    margin: auto;
+    border: 1px solid black;
+}
+
+.bio-border::-webkit-scrollbar {
+    border-radius: 20px;
+}
+
+.bio-border::-webkit-scrollbar-thumb {
+    background: #e2e2e2;
+    border-radius: 20px;
+    border: 1px solid black;
+}
+
+td:first-child {
+    width: 20%;
+    vertical-align: top;
+}
+
+.add-to-friends, .write-message, .delete-from-friends {
+    border-radius: 20px;
+}
+
+.add-to-friends:hover::after {
+    content: attr(data-title);
+}
+
+.prf-btns {
+
+    text-align: center;
+}
+
+.owner-urls {
+    text-align: center;
+}
+
+.owner_friends, .owner_groups {
+    color: black;
+    font-family: "Segoe Print";
+}
+
+.owner_friends:hover, .owner_groups:hover {
+    color: #29a6db;
+    text-decoration: none;
+}

@@ -94,6 +94,12 @@ nav span {
     transition: all 400ms;
 }
 
+.created_date {
+    float: right;
+    margin-right: 2%;
+    margin-top: 2%;
+}
+
 .menu_active {
     transform: scaleY(1);
 }
@@ -263,7 +269,7 @@ nav span {
     color: #29a6db;
 }
 
-.author_url:hover{
+.author_url:hover {
     text-decoration: none;
 }
 
@@ -274,6 +280,10 @@ nav span {
     margin-top: calc(0.1em + 0.5vw);
     border-radius: 50px;
     border: 1px solid black;
+}
+
+.comment-avatar {
+    margin-left: 1%;
 }
 
 .news_content {
@@ -292,13 +302,106 @@ nav span {
 
 .likes_counter {
     float: right;
+}
+
+.likes {
+    text-align: right;
+    position: relative;
+}
+
+.likes {
+    padding-bottom: 6px;
+}
+
+.like_img, .repost-img, .comment-img {
+    width: 25px;
+    height: 25px;
+}
+
+.repost-img {
     margin-right: 2%;
 }
 
-.like_img {
-    margin-right: 1%;
-    position: relative;
+.comments-reposts {
+    margin-bottom: 1%;
+}
+
+.liked {
+    background-image: url("../img/liked.png");
+    background-size: 25px;
+}
+
+.line {
+    border: 1px solid black;
+    width: 90%;
+    margin: auto;
+}
+
+.comments {
+    max-height: 250px;
+    margin-left: calc(1em + 1vw);
+    overflow-y: scroll;
+}
+
+.comments::-webkit-scrollbar {
+    border-radius: 20px;
+    width: 10px;
+}
+
+.comments::-webkit-scrollbar-thumb {
+    background: #ffffff;
+    border-radius: 20px;
+    border: 1px solid black;
+}
+
+.comment-text {
+    margin-left: calc(1.7em + 1.2vw);
+    word-break:break-all;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.comment-text::-webkit-scrollbar {
+    border-radius: 20px;
+    width: 10px;
+}
+
+.comment-text::-webkit-scrollbar-thumb {
+    background: #ffffff;
+    border-radius: 20px;
+    border: 1px solid black;
+}
+
+.comments-creation {
+    margin-top: 2%;
+    width: 95%;
+    height: 10%;
+}
+
+.comment-input {
+    margin-left: 1%;
+    resize: none;
+    height: 40px;
+    transition: all 400ms;
+}
+
+.focused {
+    height: 100px;
+}
+
+.comments-creation-denied {
+    width: 95%;
+    margin-top: 1%;
+    margin-bottom: 1%;
+}
+
+.delete-news, .delete-comment {
+    color: #53a3ff;
     float: right;
-    width: 30px;
-    height: 30px;
+    margin-right: 2%;
+    margin-top: -2%;
+}
+
+.delete-news:hover, .delete-comment:hover {
+    color: #b1deff;
 }

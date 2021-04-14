@@ -1,0 +1,21 @@
+{% extends "main.html" %}
+<title>Моя страница</title>
+{% block content %}
+    {% load static %}
+    <div class="alert alert-info">Пожалуйста, зарегистрируйтесь, чтобы получить доступ к данной
+        странице.
+    </div>
+    <div class="AD">
+        <img src="{% static 'img/AD.png' %}" alt="Access Denied">
+    </div>
+    <style>
+        img {
+            width: 20vw;
+            height: 15vh;
+        }
+
+        .AD {
+            text-align: center;
+        }
+    </style>
+{% endblock %}

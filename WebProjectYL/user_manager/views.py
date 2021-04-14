@@ -46,6 +46,19 @@ class UserApi(APIView):
         return Response({'user': serializer.data})
 
 
+class FindPost(APIView):
+    def get(self, request, repost_id):
+        repost = Repost.objects.filter(pk=repost_id).first()
+        if not repost:
+            return Response({"Error": "The object does not exist"})
+        post = repost.posts
+        ans = post.pk
+        while post.news is None:
+            post = post.reposts.posts
+            ans = post.pk
+        return Response({"Post id": str(ans)})
+
+
 class LikeApiView(APIView):
     def get(self, request, unique_parameter):
         like = Likes.objects.filter(unique_parameter=unique_parameter).first()

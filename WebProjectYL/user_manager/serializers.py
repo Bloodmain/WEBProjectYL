@@ -1,5 +1,14 @@
 from rest_framework import serializers
-from .models import Likes, Commentary, Profile
+from .models import Likes, Commentary, Profile, Repost
+
+
+class RepostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Repost
+        fields = ['pk', 'posts', 'user', 'create_date']
+
+    def create(self, validated_data):
+        return Repost.objects.create(**validated_data)
 
 
 class LikesSerializer(serializers.ModelSerializer):

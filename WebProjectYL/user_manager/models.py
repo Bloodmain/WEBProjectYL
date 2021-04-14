@@ -132,12 +132,12 @@ def save_user_profile(sender, instance, **kwargs):
 @receiver(post_save, sender=Repost)
 def create_post_news(sender, instance, created, **kwargs):
     if created:
-        Posts.objects.create(repost=instance)
+        Posts.objects.create(reposts=instance)
 
 
 @receiver(post_save, sender=Repost)
 def save_user_profile(sender, instance, **kwargs):
-    instance.post.save()
+    instance.posts.save()
 
 
 @receiver(post_save, sender=User)

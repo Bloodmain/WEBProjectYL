@@ -16,5 +16,7 @@ urlpatterns = [
     path('api/comments', views.CommentaryAPI.as_view()),
     path('api/comments/<int:post_id>/<int:user_id>', views.CommentaryListAPI.as_view()),
     path('api/comments/<int:pk>', views.CommentaryAPI.as_view()),
-    path('api/news/<int:news_id>', views.NewsAPI.as_view())
+    path('api/news/<int:news_id>', views.NewsAPI.as_view()),
+    path('api/reposts', views.RepostListAPI.as_view()),
+    path('api/reposts/<int:pk>', views.RepostAPI.as_view())
 ]

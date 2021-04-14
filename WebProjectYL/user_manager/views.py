@@ -3,10 +3,11 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.models import User
 from .forms import UserLoginForm, UserForm, ProfileForm, NewsForm
 from django.shortcuts import render, redirect
-from .models import NewsFile, News, Likes, Commentary
-from .serializers import LikesSerializer, UserSerializer, CommentsSerializer
+from .models import NewsFile, News, Likes, Commentary, Repost
+from .serializers import LikesSerializer, UserSerializer, CommentsSerializer, RepostSerializer
 from rest_framework.response import Response
 from rest_framework.views import APIView
+import datetime
 
 # Create your views here.
 from django.views import View
@@ -85,7 +86,6 @@ class CommentaryAPI(APIView):
         data = request.data.copy()
         if any([i not in data for i in ['user', 'post', 'text']]):
             return Response({"Error": "Not all parameters were used"})
-        comments = Commentary.objects.filter(user=data['user'], post=data['post'])
         ser = CommentsSerializer(data=data)
         if ser.is_valid(raise_exception=True):
             ser.save()
@@ -98,6 +98,41 @@ class CommentaryAPI(APIView):
             return Response({"Error": "The object does not exist"})
         comment.delete()
         return Response({"Success": "OK"})
+
+
+class RepostListAPI(APIView):
+    def get(self, request):
+        reposts = Repost.objects.all()
+        serializer = RepostSerializer(reposts, many=True)
+        return Response({"Reposts": serializer.data})
+
+    def post(self, request):
+        data = request.data.copy()
+        if any([i not in data for i in ['user', 'posts']]):
+            return Response({"Error": "Not all parameters were used"})
+        data['create_date'] = datetime.datetime.now()
+        serializer = RepostSerializer(data=data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response({"Success": "OK"})
+        return Response({"Error": "Bad request"})
+
+
+class RepostAPI(APIView):
+    def get(self, request, pk):
+        repost = Repost.objects.filter(pk=pk).first()
+        print(repost)
+        if not repost:
+            return Response({"Error": "The object does not exist"})
+        serializer = RepostSerializer(repost)
+        return Response({"Repost": serializer.data})
+
+    def delete(self, request, pk):
+        repost = Repost.objects.filter(pk=pk).first()
+        if not repost:
+            return Response({"Error": "The object does not exist"})
+        repost.delete()
+        return Response({"Succcess": "OK"})
 
 
 class CommentaryListAPI(APIView):

@@ -29,8 +29,7 @@ class Profile(models.Model):
     birth_date = models.DateField(verbose_name='Дата рождения', null=True, blank=False)
 
     def get_news_interesting_for_user(self):
-        post = sorted(list(self.user.news.all()) + list(self.user.repost.all()),
-                      key=lambda x: x.create_date, reverse=True)
+        post = sorted(list(self.user.news.all()), key=lambda x: x.create_date, reverse=True)
         return post
 
     def is_friends(self, other):

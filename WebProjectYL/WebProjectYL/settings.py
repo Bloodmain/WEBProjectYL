@@ -37,7 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'user_manager.apps.UserManagerConfig',
-    'rest_framework'
+    'rest_framework'  # ,
+    #    'django_extensions' для отладки
 ]
 
 MIDDLEWARE = [

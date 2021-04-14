@@ -3,7 +3,7 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.models import User
 from .forms import UserLoginForm, UserForm, ProfileForm, NewsForm
 from django.shortcuts import render, redirect
-from .models import NewsFile, News, Likes, Commentary, Repost
+from .models import NewsFile, News, Likes, Commentary, Repost, Profile
 from .serializers import LikesSerializer, UserSerializer, CommentsSerializer, RepostSerializer
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -162,6 +162,26 @@ class NewsAPI(APIView):
             return Response({"Error": "The object does not exist"})
         news.delete()
         return Response({"Success": "OK"})
+
+
+class SearchUserAPI(APIView):
+    def get(self, request, request_api):
+        name = request_api.split('~')
+        if len(name) > 2:
+            return Response({"Error": "Bad request"})
+        if len(name) == 1:
+            name = name[0].replace('_', ' ')
+            users_1 = Profile.objects.filter(name__icontains=name)
+            users_2 = Profile.objects.filter(surname__icontains=name)
+            users = users_1 | users_2
+            serializer = UserSerializer(users, many=True)
+            return Response({"Users": serializer.data})
+        name, surname = name[0].replace('_', ' '), name[1].replace('_', ' ')
+        users_1 = Profile.objects.filter(name__icontains=name, surname__icontains=surname)
+        users_2 = Profile.objects.filter(surname__icontains=name, name__icontains=surname)
+        users = users_1 | users_2
+        serializer = UserSerializer(users, many=True)
+        return Response({"Users": serializer.data})
 
 
 def news_form(request):

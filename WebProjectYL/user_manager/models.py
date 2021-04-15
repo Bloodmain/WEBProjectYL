@@ -32,6 +32,10 @@ class Profile(models.Model):
         post = sorted(list(self.user.news.all()), key=lambda x: x.create_date, reverse=True)
         return post
 
+    def get_friends_request(self):
+        requests = self.user.FriendRequests
+        print(requests)
+
     def is_friends(self, other):
         return False
 
@@ -48,6 +52,19 @@ class Profile(models.Model):
         ordering = ['name', 'surname', 'birth_date']
         verbose_name = "Профлиль пользователя"
         verbose_name_plural = "Профили пользователей"
+
+
+class FriendRequest(models.Model):
+    requester = models.ForeignKey(User, on_delete=models.CASCADE,
+                                  verbose_name="тот кто отправляет запрос", related_name="FriendRequests")
+    friend = models.ForeignKey(User, on_delete=models.CASCADE,
+                               verbose_name="кому отправлен запрос", related_name="FriendRequests")
+
+
+class FriendShip(models.Model):
+    friend_first = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Первый друг", related_name="friends")
+    friend_second = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Второй друг", related_name="friends")
+    create_date = models.DateTimeField(verbose_name='дата создания', default=datetime.datetime.now)
 
 
 class News(models.Model):

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Profile, News, Commentary, NewsFile, Repost, Posts, Likes
+from .models import Profile, News, Commentary, NewsFile, Repost, Posts, Likes, FriendShip, FriendRequest
 
 
 class AdminProfile(admin.ModelAdmin):
@@ -10,6 +10,16 @@ class AdminProfile(admin.ModelAdmin):
 
     class Meta:
         model = Profile
+
+
+class AdminFriendShip(admin.ModelAdmin):
+    class Meta:
+        model = FriendShip
+
+
+class AdminFriendRequest(admin.ModelAdmin):
+    class Meta:
+        model = FriendRequest
 
 
 class AdminNews(admin.ModelAdmin):
@@ -64,3 +74,5 @@ admin.site.register(NewsFile, AdminNewsFiles)
 admin.site.register(Repost, AdminRepost)
 admin.site.register(Posts, AdminPosts)
 admin.site.register(Likes, AdminLikes)
+admin.site.register(FriendShip, AdminFriendShip)
+admin.site.register(FriendRequest, AdminFriendRequest)

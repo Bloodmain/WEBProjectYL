@@ -395,13 +395,24 @@ nav span {
     margin-bottom: 1%;
 }
 
-.delete-news, .delete-comment {
+.delete-news, .delete-repost, .delete-comment {
     color: #53a3ff;
     float: right;
     margin-right: 2%;
     margin-top: -2%;
 }
 
-.delete-news:hover, .delete-comment:hover {
+.delete-news:hover, .delete-repost:hover, .delete-comment:hover {
     color: #b1deff;
+}
+
+.repost-sign {
+    color: #c4c4c4;
+    border: 1px solid #c4c4c4;
+    border-radius: 7px;
+}
+
+.repost-sign:hover {
+    text-decoration: none;
+    color: #9a9a9a;
 }

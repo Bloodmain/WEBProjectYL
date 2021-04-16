@@ -119,24 +119,24 @@ class Commentary(models.Model):
 
 
 @receiver(post_save, sender=News)
-def create_post_news(sender, instance, created, **kwargs):
+def create_post_on_news(sender, instance, created, **kwargs):
     if created:
         Posts.objects.create(news=instance)
 
 
 @receiver(post_save, sender=News)
-def save_user_profile(sender, instance, **kwargs):
+def save_post_on_news(sender, instance, **kwargs):
     instance.post.save()
 
 
 @receiver(post_save, sender=Repost)
-def create_post_news(sender, instance, created, **kwargs):
+def create_post_on_repost(sender, instance, created, **kwargs):
     if created:
         Posts.objects.create(reposts=instance)
 
 
 @receiver(post_save, sender=Repost)
-def save_user_profile(sender, instance, **kwargs):
+def save_post_on_repost(sender, instance, **kwargs):
     instance.posts.save()
 
 

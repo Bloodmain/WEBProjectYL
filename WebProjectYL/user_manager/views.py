@@ -3,7 +3,7 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.models import User
 from .forms import UserLoginForm, UserForm, ProfileForm, NewsForm
 from django.shortcuts import render, redirect
-from .models import NewsFile, News, Likes, Commentary, Repost
+from .models import NewsFile, News, Likes, Commentary, Repost, Posts
 from .serializers import LikesSerializer, UserSerializer, CommentsSerializer, RepostSerializer
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -20,14 +20,25 @@ def get_news_data(all_news):
     width = []
     comments = []
 
-    for news in all_news:
+    for i, (news, tp) in enumerate(all_news):
+        if tp == 0:
+            reposted = news
+            news = news.posts
+            while news.news is None:
+                news = news.reposts.posts
+            news = news.news
+            all_news[i][0].text_content = news.text_content
+            all_news[i][0].files = news.files
         to_add = []
         for file in news.files.all():
             url = file.file.url
             if url.rsplit('.', 1)[-1] in {'png', 'jpg', 'jpeg'}:
                 to_add.append(file)
         images.append(to_add)
-        comments.append(news.post.comment.all())
+        if tp == 1:
+            comments.append(news.post.comment.all())
+        else:
+            comments.append(reposted.post.comment.all())
 
         if to_add:
             width.append(100 // min(len(to_add), 3))
@@ -56,7 +67,7 @@ class FindPost(APIView):
         while post.news is None:
             post = post.reposts.posts
             ans = post.pk
-        return Response({"Post id": str(ans)})
+        return Response({"Post_id": str(ans)})
 
 
 class LikeApiView(APIView):
@@ -164,6 +175,21 @@ class NewsAPI(APIView):
         return Response({"Success": "OK"})
 
 
+def show_post(request, post_id):
+    post = [(Posts.objects.filter(pk=post_id).first().news, 1)]
+    images, width, comments = get_news_data(post)
+    return render(request, 'one_post.html',
+                  {'news': post[0][0],
+                   'images': images[0],
+                   'width': width[0],
+                   'comments': comments[0]})
+
+
+def repost_origin(request, repost_id):
+    post_id = FindPost().get(request, repost_id).data['Post_id']
+    return redirect(f'/show_post/{post_id}')
+
+
 def news_form(request):
     if request.method == 'POST':
         form = NewsForm(request.POST, request.FILES)
@@ -178,9 +204,11 @@ def news_form(request):
         form = NewsForm()
 
     if request.user.is_authenticated:
-        all_news = request.user.profile.get_news_interesting_for_user()
+        all_news = [(news, isinstance(news, News))
+                    for news in request.user.profile.get_news_interesting_for_user()]
     else:
-        all_news = sorted(News.objects.all(), key=lambda x: x.create_date, reverse=True)
+        all_news = [(x, 1)
+                    for x in sorted(News.objects.all(), key=lambda x: x.create_date, reverse=True)]
 
     images, width, comments = get_news_data(all_news)
 
@@ -245,7 +273,9 @@ def unknown_homepage(request):
 def homepage(request, user_id):
     user = User.objects.get(id=user_id)
     is_friends = request.user.is_authenticated and user.profile.is_friends(request.user)
-    all_news = sorted(user.news.all(), key=lambda x: x.create_date, reverse=True)
+    all_news = [(x, isinstance(x, News))
+                for x in sorted(list(user.news.all()) + list(user.repost.all()),
+                                key=lambda x: x.create_date, reverse=True)]
     images, width, comments = get_news_data(all_news)
     return render(request, 'homepage.html', {
         'page_owner': user,

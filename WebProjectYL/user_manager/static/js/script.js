@@ -174,6 +174,24 @@ $('.delete-news').click(function () {
     }
 })
 
+$('.delete-repost').click(function () {
+    if (confirm('Вы действительно хотите удалить этот репост?')) {
+        var element = $(this)
+        var repost_id = element.attr('class').split(' ')[1];
+        $.ajax({
+            type: 'DELETE',
+            url: '/api/reposts/' + repost_id,
+            data: {},
+            dataType: 'json',
+            success: function () {
+                var post_id = element.attr('class').split(' ')[2];
+                remember_offset(post_id);
+                location.reload()
+            }
+        });
+    }
+})
+
 $('.delete-comment').click(function () {
     if (confirm('Вы действительно хотите удалить этот комментарий?')) {
         var element = $(this)
@@ -186,8 +204,25 @@ $('.delete-comment').click(function () {
             success: function () {
                 var post_id = element.attr('class').split(' ')[2];
                 remember_offset(post_id);
-                location.reload()
+                location.reload();
             }
         });
+    }
+})
+
+$('.repost-img').click(function () {
+    if (confirm('Вы действительно хотите создать репост этой записи?')) {
+        var element = $(this)
+        var post_id = element.attr('class').split(' ')[1];
+        $.get('/api/user', {}, function (data) {
+            if ('Error' in data)
+                return;
+
+            var user_id = data['user']['user'];
+            $.post('/api/reposts', {user: user_id, posts: post_id}, function () {
+                remember_offset(post_id);
+                location.reload();
+            })
+        })
     }
 })

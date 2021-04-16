@@ -67,12 +67,31 @@ class FriendRequest(models.Model):
                                   verbose_name="тот кто отправляет запрос", related_name="our_requests")
     friend = models.ForeignKey(User, on_delete=models.CASCADE,
                                verbose_name="кому отправлен запрос", related_name="FriendRequests")
+    create_date = models.DateTimeField(verbose_name='дата создания', default=datetime.datetime.now)
+
+    class Meta:
+        verbose_name = "Запрос в друзья"
+        verbose_name_plural = "Запросы в друзья"
 
 
 class FriendShip(models.Model):
     creator = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Первый друг", related_name="creator")
     friend = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Второй друг", related_name="friends")
     create_date = models.DateTimeField(verbose_name='дата создания', default=datetime.datetime.now)
+
+    class Meta:
+        verbose_name = "Дружба"
+        verbose_name_plural = "Дружбы"
+
+
+class SubscriberShip(models.Model):
+    subscriber = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Подписчик", related_name='subscriber')
+    author = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="На кого подписан", related_name='author')
+    create_date = models.DateTimeField(verbose_name="дата создания", default=datetime.datetime.now)
+
+    class Meta:
+        verbose_name = "Подписчик"
+        verbose_name_plural = "Подписчики"
 
 
 class News(models.Model):
@@ -126,6 +145,10 @@ class Likes(models.Model):
     unique_parameter = models.CharField(max_length=50, verbose_name='Уникальный параметр',
                                         blank=True, null=False,
                                         unique=True)
+
+    class Meta:
+        verbose_name = "Лайк"
+        verbose_name_plural = "Лайки"
 
 
 class Commentary(models.Model):

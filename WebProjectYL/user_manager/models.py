@@ -33,19 +33,51 @@ class Profile(models.Model):
         return post
 
     def get_friends_request(self):
-        requests = self.user.FriendRequests.all()
-        return requests
+        "Возвращает все кто отправил нам запрос в друзья"
+        return [request.requester for request in self.user.FriendRequests.all()]
 
     def get_our_friends_request(self):
-        requests = self.user.our_requests.all()
-        return requests
+        "Возвращает всех людей которым мы отправили запрос на дружбу"
+        return [request.friend for request in self.user.our_requests.all()]
 
     def get_friends(self):
-        fields = self.user.creator.all() | self.user.friends.all()
-        return fields
+        "Возвращает всех наших друзей"
+        return [friend_ship.friend for friend_ship in self.user.creator.all()] + \
+               [friend_ship.creator for friend_ship in self.user.friends.all()]
+
+    def get_subscribers(self):
+        "Возвращает всех наших подписчиков"
+        return [subscriber_ship.subscriber for subscriber_ship in self.user.author.all()]
+
+    def get_authors(self):
+        "Возвращает всех на кого мы подписаны"
+        return [subscriber_ship.author for subscriber_ship in self.user.subscriber.all()]
 
     def is_friends(self, other):
-        return False
+        """
+        other -> User
+        Возращает взаимоотношение между пользователями
+        0 - не друзья
+        1 - друзья
+        2 - мы сделали запрос
+        3 - он сделал запрос
+        4 - он наш подписчик
+        5 - мы его подписчик
+        6 - это мы
+        """
+        if other == self.user:
+            return 6
+        if other in self.get_friends():
+            return 1
+        if other in self.get_our_friends_request():
+            return 2
+        if other in self.get_friends_request():
+            return 3
+        if other in self.get_subscribers():
+            return 4
+        if other in self.get_authors():
+            return 5
+        return 0
 
     def __str__(self):
         return self.user.username

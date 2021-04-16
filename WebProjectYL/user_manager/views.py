@@ -3,7 +3,7 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.models import User
 from .forms import UserLoginForm, UserForm, ProfileForm, NewsForm
 from django.shortcuts import render, redirect
-from .models import NewsFile, News, Likes, Commentary, Repost, Posts
+from .models import NewsFile, News, Likes, Commentary, Repost, Posts, Profile
 from .serializers import LikesSerializer, UserSerializer, CommentsSerializer, RepostSerializer
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -35,10 +35,7 @@ def get_news_data(all_news):
             if url.rsplit('.', 1)[-1] in {'png', 'jpg', 'jpeg'}:
                 to_add.append(file)
         images.append(to_add)
-        if tp == 1:
-            comments.append(news.post.comment.all())
-        else:
-            comments.append(reposted.post.comment.all())
+        comments.append(news.post.comment.all())
 
         if to_add:
             width.append(100 // min(len(to_add), 3))
@@ -188,6 +185,26 @@ def show_post(request, post_id):
 def repost_origin(request, repost_id):
     post_id = FindPost().get(request, repost_id).data['Post_id']
     return redirect(f'/show_post/{post_id}')
+
+
+class SearchUserAPI(APIView):
+    def get(self, request, request_api):
+        name = request_api.split('~')
+        if len(name) > 2:
+            return Response({"Error": "Bad request"})
+        if len(name) == 1:
+            name = name[0].replace('_', ' ')
+            users_1 = Profile.objects.filter(name__icontains=name)
+            users_2 = Profile.objects.filter(surname__icontains=name)
+            users = users_1 | users_2
+            serializer = UserSerializer(users, many=True)
+            return Response({"Users": serializer.data})
+        name, surname = name[0].replace('_', ' '), name[1].replace('_', ' ')
+        users_1 = Profile.objects.filter(name__icontains=name, surname__icontains=surname)
+        users_2 = Profile.objects.filter(surname__icontains=name, name__icontains=surname)
+        users = users_1 | users_2
+        serializer = UserSerializer(users, many=True)
+        return Response({"Users": serializer.data})
 
 
 def news_form(request):

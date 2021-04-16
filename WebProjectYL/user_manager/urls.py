@@ -21,5 +21,6 @@ urlpatterns = [
     path('api/reposts/<int:pk>', views.RepostAPI.as_view()),
     path('api/findpost/<int:repost_id>', views.FindPost.as_view()),
     path('origin/<int:repost_id>', views.repost_origin),
-    path('show_post/<int:post_id>', views.show_post)
+    path('show_post/<int:post_id>', views.show_post),
+    path('api/search_user/<str:request_api>', views.SearchUserAPI.as_view())
 ]

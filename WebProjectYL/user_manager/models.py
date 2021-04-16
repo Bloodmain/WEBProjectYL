@@ -29,12 +29,55 @@ class Profile(models.Model):
     birth_date = models.DateField(verbose_name='Дата рождения', null=True, blank=False)
 
     def get_news_interesting_for_user(self):
-        post = sorted(list(self.user.news.all()) + list(self.user.repost.all()),
-                      key=lambda x: x.create_date, reverse=True)
+        post = sorted(list(self.user.news.all()), key=lambda x: x.create_date, reverse=True)
         return post
 
+    def get_friends_request(self):
+        "Возвращает все кто отправил нам запрос в друзья"
+        return [request.requester for request in self.user.FriendRequests.all()]
+
+    def get_our_friends_request(self):
+        "Возвращает всех людей которым мы отправили запрос на дружбу"
+        return [request.friend for request in self.user.our_requests.all()]
+
+    def get_friends(self):
+        "Возвращает всех наших друзей"
+        return [friend_ship.friend for friend_ship in self.user.creator.all()] + \
+               [friend_ship.creator for friend_ship in self.user.friends.all()]
+
+    def get_subscribers(self):
+        "Возвращает всех наших подписчиков"
+        return [subscriber_ship.subscriber for subscriber_ship in self.user.author.all()]
+
+    def get_authors(self):
+        "Возвращает всех на кого мы подписаны"
+        return [subscriber_ship.author for subscriber_ship in self.user.subscriber.all()]
+
     def is_friends(self, other):
-        return False
+        """
+        other -> User
+        Возращает взаимоотношение между пользователями
+        0 - не друзья
+        1 - друзья
+        2 - мы сделали запрос
+        3 - он сделал запрос
+        4 - он наш подписчик
+        5 - мы его подписчик
+        6 - это мы
+        """
+        if other == self.user:
+            return 6
+        if other in self.get_friends():
+            return 1
+        if other in self.get_our_friends_request():
+            return 2
+        if other in self.get_friends_request():
+            return 3
+        if other in self.get_subscribers():
+            return 4
+        if other in self.get_authors():
+            return 5
+        return 0
 
     def __str__(self):
         return self.user.username
@@ -49,6 +92,38 @@ class Profile(models.Model):
         ordering = ['name', 'surname', 'birth_date']
         verbose_name = "Профлиль пользователя"
         verbose_name_plural = "Профили пользователей"
+
+
+class FriendRequest(models.Model):
+    requester = models.ForeignKey(User, on_delete=models.CASCADE,
+                                  verbose_name="тот кто отправляет запрос", related_name="our_requests")
+    friend = models.ForeignKey(User, on_delete=models.CASCADE,
+                               verbose_name="кому отправлен запрос", related_name="FriendRequests")
+    create_date = models.DateTimeField(verbose_name='дата создания', default=datetime.datetime.now)
+
+    class Meta:
+        verbose_name = "Запрос в друзья"
+        verbose_name_plural = "Запросы в друзья"
+
+
+class FriendShip(models.Model):
+    creator = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Первый друг", related_name="creator")
+    friend = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Второй друг", related_name="friends")
+    create_date = models.DateTimeField(verbose_name='дата создания', default=datetime.datetime.now)
+
+    class Meta:
+        verbose_name = "Дружба"
+        verbose_name_plural = "Дружбы"
+
+
+class SubscriberShip(models.Model):
+    subscriber = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Подписчик", related_name='subscriber')
+    author = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="На кого подписан", related_name='author')
+    create_date = models.DateTimeField(verbose_name="дата создания", default=datetime.datetime.now)
+
+    class Meta:
+        verbose_name = "Подписчик"
+        verbose_name_plural = "Подписчики"
 
 
 class News(models.Model):
@@ -102,6 +177,10 @@ class Likes(models.Model):
     unique_parameter = models.CharField(max_length=50, verbose_name='Уникальный параметр',
                                         blank=True, null=False,
                                         unique=True)
+
+    class Meta:
+        verbose_name = "Лайк"
+        verbose_name_plural = "Лайки"
 
 
 class Commentary(models.Model):

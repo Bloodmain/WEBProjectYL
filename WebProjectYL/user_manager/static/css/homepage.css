@@ -19,6 +19,7 @@
     width: calc(5em + 3vw);
     height: calc(10em + 3vh);
     background-size: calc(5em + 3vw) calc(10em + 3vh);
+    border: 2px solid black;
 }
 
 .birth-date {

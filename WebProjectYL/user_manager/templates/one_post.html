@@ -14,6 +14,12 @@
                  class="news_avatar">
             <span class="creator_name">{{ news.user.profile.name }} {{ news.user.profile.surname }}</span>
         </a>
+        {% if tp == 0 %}
+            <a class="repost-sign" title="Нажмите для просмотра оригинальной записи"
+               href="/origin/{{ news.id }}">
+                Репост
+            </a>
+        {% endif %}
         <span class="created_date">{{ news.create_date }}</span>
         <br>
         {% if news.user == user %}

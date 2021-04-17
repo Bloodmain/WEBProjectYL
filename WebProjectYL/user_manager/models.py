@@ -33,24 +33,24 @@ class Profile(models.Model):
         return post
 
     def get_friends_request(self):
-        "Возвращает все кто отправил нам запрос в друзья"
+        """Возвращает все кто отправил нам запрос в друзья"""
         return [request.requester for request in self.user.FriendRequests.all()]
 
     def get_our_friends_request(self):
-        "Возвращает всех людей которым мы отправили запрос на дружбу"
+        """Возвращает всех людей которым мы отправили запрос на дружбу"""
         return [request.friend for request in self.user.our_requests.all()]
 
     def get_friends(self):
-        "Возвращает всех наших друзей"
+        """Возвращает всех наших друзей"""
         return [friend_ship.friend for friend_ship in self.user.creator.all()] + \
                [friend_ship.creator for friend_ship in self.user.friends.all()]
 
     def get_subscribers(self):
-        "Возвращает всех наших подписчиков"
+        """Возвращает всех наших подписчиков"""
         return [subscriber_ship.subscriber for subscriber_ship in self.user.author.all()]
 
     def get_authors(self):
-        "Возвращает всех на кого мы подписаны"
+        """Возвращает всех на кого мы подписаны"""
         return [subscriber_ship.author for subscriber_ship in self.user.subscriber.all()]
 
     def is_friends(self, other):
@@ -96,7 +96,8 @@ class Profile(models.Model):
 
 class FriendRequest(models.Model):
     requester = models.ForeignKey(User, on_delete=models.CASCADE,
-                                  verbose_name="тот кто отправляет запрос", related_name="our_requests")
+                                  verbose_name="тот кто отправляет запрос",
+                                  related_name="our_requests")
     friend = models.ForeignKey(User, on_delete=models.CASCADE,
                                verbose_name="кому отправлен запрос", related_name="FriendRequests")
     create_date = models.DateTimeField(verbose_name='дата создания', default=datetime.datetime.now)
@@ -107,8 +108,10 @@ class FriendRequest(models.Model):
 
 
 class FriendShip(models.Model):
-    creator = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Первый друг", related_name="creator")
-    friend = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Второй друг", related_name="friends")
+    creator = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Первый друг",
+                                related_name="creator")
+    friend = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Второй друг",
+                               related_name="friends")
     create_date = models.DateTimeField(verbose_name='дата создания', default=datetime.datetime.now)
 
     class Meta:
@@ -117,8 +120,10 @@ class FriendShip(models.Model):
 
 
 class SubscriberShip(models.Model):
-    subscriber = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Подписчик", related_name='subscriber')
-    author = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="На кого подписан", related_name='author')
+    subscriber = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Подписчик",
+                                   related_name='subscriber')
+    author = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="На кого подписан",
+                               related_name='author')
     create_date = models.DateTimeField(verbose_name="дата создания", default=datetime.datetime.now)
 
     class Meta:

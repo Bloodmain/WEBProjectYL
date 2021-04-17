@@ -35,7 +35,10 @@ def get_news_data(all_news):
             if url.rsplit('.', 1)[-1] in {'png', 'jpg', 'jpeg'}:
                 to_add.append(file)
         images.append(to_add)
-        comments.append(news.post.comment.all())
+        if tp == 1:
+            comments.append(news.post.comment.all())
+        else:
+            comments.append(reposted.post.comment.all())
 
         if to_add:
             width.append(100 // min(len(to_add), 3))
@@ -173,17 +176,22 @@ class NewsAPI(APIView):
 
 
 def show_post(request, post_id):
-    post = [(Posts.objects.filter(pk=post_id).first().news, 1)]
+    post = Posts.objects.filter(pk=post_id).first()
+    if post.news is None:
+        post = [(post.reposts, 0)]
+    else:
+        post = [(post.news, 1)]
     images, width, comments = get_news_data(post)
     return render(request, 'one_post.html',
                   {'news': post[0][0],
                    'images': images[0],
                    'width': width[0],
-                   'comments': comments[0]})
+                   'comments': comments[0],
+                   'tp': isinstance(post[0][0], News)})
 
 
 def repost_origin(request, repost_id):
-    post_id = FindPost().get(request, repost_id).data['Post_id']
+    post_id = Repost.objects.filter(pk=repost_id).first().posts.id
     return redirect(f'/show_post/{post_id}')
 
 
@@ -289,7 +297,7 @@ def unknown_homepage(request):
 
 def homepage(request, user_id):
     user = User.objects.get(id=user_id)
-    is_friends = request.user.is_authenticated and user.profile.is_friends(request.user)
+    is_friends = user.profile.is_friends(request.user)
     all_news = [(x, isinstance(x, News))
                 for x in sorted(list(user.news.all()) + list(user.repost.all()),
                                 key=lambda x: x.create_date, reverse=True)]

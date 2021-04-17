@@ -94,7 +94,7 @@ nav span {
     transition: all 400ms;
 }
 
-.created_date {
+.created_date, .show_post {
     float: right;
     margin-right: 2%;
     margin-top: 2%;
@@ -415,4 +415,12 @@ nav span {
 .repost-sign:hover {
     text-decoration: none;
     color: #9a9a9a;
+}
+
+.show_post {
+    color: black;
+}
+
+.show_post:hover {
+    text-decoration: none;
 }

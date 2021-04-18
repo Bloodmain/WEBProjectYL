@@ -9,7 +9,7 @@ urlpatterns = [
     path('logout/', views.Logout.as_view()),
     path('register/', views.register),
     path('homepage/<int:user_id>', views.homepage),
-    path('homepage/unknown', views.unknown_homepage),
+    path('access_denied/', views.access_denied),
     path('api/user', views.UserApi.as_view()),
     path('api/likes', views.LikeApiView.as_view()),
     path('api/likes/<str:unique_parameter>', views.LikeApiView.as_view()),
@@ -31,5 +31,6 @@ urlpatterns = [
     path('api/friends_requests', views.FriendsRequestAPI.as_view()),
     path('api/friends_requests/<int:user1_id>/<int:user2_id>', views.FriendsRequestAPI.as_view()),
     path('api/subscriber/<int:user1_id>/<int:user2_id>', views.SubscriberAPI.as_view()),
-    path('api/subscriber', views.SubscriberAPI.as_view())
+    path('api/subscriber', views.SubscriberAPI.as_view()),
+    path('friends/<int:user_id>', views.show_friends)
 ]

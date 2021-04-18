@@ -1,4 +1,4 @@
-const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]');
 
 $(document).ready(function () {
     $('.avatar').bootstrapFileInput('Выбрать аватар');
@@ -50,8 +50,8 @@ function sameOrigin(url) {
 
 $.ajaxSetup({
     beforeSend: function (xhr, settings) {
-        if (!csrfSafeMethod(settings.type) && sameOrigin(settings.url)) {
-            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+        if (csrftoken && !csrfSafeMethod(settings.type) && sameOrigin(settings.url)) {
+            xhr.setRequestHeader("X-CSRFToken", csrftoken.value);
         }
     }
 });
@@ -212,7 +212,7 @@ $('.delete-comment').click(function () {
 
 $('.repost-img').click(function () {
     if (confirm('Вы действительно хотите создать репост этой записи?')) {
-        var element = $(this)
+        var element = $(this);
         var post_id = element.attr('class').split(' ')[1];
         $.get('/api/user', {}, function (data) {
             if ('Error' in data)
@@ -225,4 +225,76 @@ $('.repost-img').click(function () {
             })
         })
     }
+})
+
+$('.send-friend-request').click(function () {
+    var element = $(this);
+    var requester_id = element.attr('class').split(' ')[1];
+    var friend_id = element.attr('class').split(' ')[2];
+    $.post('/api/friends_requests', {requester: requester_id, friend: friend_id}, function () {
+        location.reload();
+    })
+})
+
+$('.delete-from-friends').click(function () {
+    var element = $(this);
+    var user1_id = element.attr('class').split(' ')[1];
+    var user2_id = element.attr('class').split(' ')[2];
+    $.ajax({
+        type: 'DELETE',
+        url: '/api/friends/' + user1_id + '/' + user2_id,
+        data: {},
+        dataType: 'json',
+        success: function () {
+            location.reload();
+        }
+    });
+})
+
+$('.remove-friend-request').click(function () {
+    var element = $(this);
+    var user1_id = element.attr('class').split(' ')[1];
+    var user2_id = element.attr('class').split(' ')[2];
+    $.ajax({
+        type: 'DELETE',
+        url: '/api/friends_requests/' + user1_id + '/' + user2_id,
+        data: {},
+        dataType: 'json',
+        success: function () {
+            location.reload();
+        }
+    });
+})
+
+$('.add-to-friends').click(function () {
+    var element = $(this);
+    var friend_id = element.attr('class').split(' ')[1];
+    var creator_id = element.attr('class').split(' ')[2];
+    $.post('/api/friends', {creator: creator_id, friend: friend_id}, function () {
+        location.reload();
+    })
+})
+
+$('.leave-in-subs').click(function () {
+    var element = $(this);
+    var author = element.attr('class').split(' ')[1];
+    var subscriber = element.attr('class').split(' ')[2];
+    $.post('/api/subscriber', {author: author, subscriber: subscriber}, function () {
+        location.reload();
+    })
+})
+
+$('.leave-from-subs').click(function () {
+    var element = $(this);
+    var user1_id = element.attr('class').split(' ')[1];
+    var user2_id = element.attr('class').split(' ')[2];
+    $.ajax({
+        type: 'DELETE',
+        url: '/api/subscriber/' + user1_id + '/' + user2_id,
+        data: {},
+        dataType: 'json',
+        success: function () {
+            location.reload();
+        }
+    });
 })

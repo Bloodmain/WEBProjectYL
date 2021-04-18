@@ -77,3 +77,7 @@ td:first-child {
     color: #29a6db;
     text-decoration: none;
 }
+
+.no-posts {
+    text-align: center;
+}

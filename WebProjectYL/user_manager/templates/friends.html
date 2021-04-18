@@ -1,0 +1,93 @@
+{% extends "main.html" %}
+{% block content %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/friends.css' %}">
+
+    {% if reqs_to_you %}
+        <h1>Заявки в друзья</h1>
+        <hr color="black">
+        {% for req in reqs_to_you %}
+            <a href="/homepage/{{ req.requester.id }}" class="author_url">
+                <img src="{{ req.requester.profile.avatar.url }}" alt="Аватарка"
+                     class="news_avatar comment-avatar">
+                <span class="creator_name">{{ req.requester.profile.name }} {{ req.requester.profile.surname }}</span>
+            </a>
+            <div class="friendship_creation_date">Запрос от {{ req.create_date }}</div>
+            <br>
+        {% endfor %}
+        <br><br>
+    {% endif %}
+
+    <h1>Друзья</h1>
+    <hr color="black">
+    {% if friends %}
+        {% for friend in friends %}
+            {% if friend.friend != user %}
+                <a href="/homepage/{{ friend.friend.id }}" class="author_url">
+                    <img src="{{ friend.friend.profile.avatar.url }}" alt="Аватарка"
+                         class="news_avatar comment-avatar">
+                    <span class="creator_name">{{ friend.friend.profile.name }} {{ friend.friend.profile.surname }}</span>
+                </a>
+            {% else %}
+                <a href="/homepage/{{ friend.creator.id }}" class="author_url">
+                    <img src="{{ friend.creator.profile.avatar.url }}" alt="Аватарка"
+                         class="news_avatar comment-avatar">
+                    <span class="creator_name">{{ friend.creator.profile.name }} {{ friend.creator.profile.surname }}</span>
+                </a>
+            {% endif %}
+            <div class="friendship_creation_date">Друзья с {{ friend.create_date }}</div>
+            <br>
+        {% endfor %}
+    {% else %}
+        <span>У Вас ещё нет друзей...</span>
+    {% endif %}
+    <br><br>
+
+    {% if your_reqs %}
+        <h1>Ваши запросы дружбы</h1>
+        <hr color="black">
+        {% for req in your_reqs %}
+            <a href="/homepage/{{ req.friend.id }}" class="author_url">
+                <img src="{{ req.friend.profile.avatar.url }}" alt="Аватарка"
+                     class="news_avatar comment-avatar">
+                <span class="creator_name">{{ req.friend.profile.name }} {{ req.friend.profile.surname }}</span>
+            </a>
+            <div class="friendship_creation_date">Запрос от {{ req.create_date }}</div>
+            <br>
+        {% endfor %}
+        <br><br>
+    {% endif %}
+
+    <h1>Подписчики</h1>
+    <hr color="black">
+    {% if subscribers %}
+        {% for subscriber in subscribers %}
+            <a href="/homepage/{{ subscriber.subscriber.id }}" class="author_url">
+                <img src="{{ subscriber.subscriber.profile.avatar.url }}" alt="Аватарка"
+                     class="news_avatar comment-avatar">
+                <span class="creator_name">{{ subscriber.subscriber.profile.name }} {{ subscriber.subscriber.profile.surname }}</span>
+            </a>
+            <div class="friendship_creation_date">Подписан на Вас с {{ subscriber.create_date }}</div>
+            <br>
+        {% endfor %}
+    {% else %}
+        <span>У Вас нет подписчиков</span>
+    {% endif %}
+    <br><br>
+
+    <h1>Ваши подписки</h1>
+    <hr color="black">
+    {% if subscribes %}
+        {% for subscribe in subscribes %}
+            <a href="/homepage/{{ subscribe.author.id }}" class="author_url">
+                <img src="{{ subscribe.author.profile.avatar.url }}" alt="Аватарка"
+                     class="news_avatar comment-avatar">
+                <span class="creator_name">{{ subscribe.author.profile.name }} {{ subscribe.author.profile.surname }}</span>
+            </a>
+            <div class="friendship_creation_date">Вы подписаны с {{ subscribe.create_date }}</div>
+            <br>
+        {% endfor %}
+    {% else %}
+        <span>Вы ни на кого не подписаны</span>
+    {% endif %}
+{% endblock %}

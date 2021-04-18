@@ -1,0 +1,19 @@
+h1 {
+    font-family: "Segoe Print";
+    font-size: 30px;
+    font-weight: bold;
+}
+
+hr {
+    height: 1px;
+}
+
+.friendship_creation_date {
+    font-size: 12px;
+    margin-right: 15%;
+}
+
+.news_avatar {
+    width: 60px;
+    height: 60px;
+}

@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script type="text/javascript" src="{% static 'js/bootstrap.file-input.js' %}"></script>
-    <title>Новости</title>
+    <title>{{ title }}</title>
 </head>
 <body>
 <header>
@@ -23,7 +23,7 @@
             <a href="/homepage/{{ user.id }}" class="scalable">Моя страница</a>
             <span class="scalable">|</span>
         {% else %}
-            <a href="/homepage/unknown" class="scalable">Моя страница</a>
+            <a href="/access_denied/" class="scalable">Моя страница</a>
             <span class="scalable">|</span>
         {% endif %}
         <a href="/messages/" class="scalable">Сообщения</a> <span class="scalable">|</span>
@@ -36,8 +36,13 @@
         <div class="brick"></div>
     </div>
     <div class="menu">
-        <a href="/friends/" class="menu_a">Друзья</a><br>
-        <a href="/groups/" class="menu_a">Сообщества</a>
+        {% if user.is_authenticated %}
+            <a href="/friends/{{ user.id }}" class="menu_a">Друзья</a><br>
+            <a href="/groups/{{ user.id }}" class="menu_a">Сообщества</a>
+        {% else %}
+            <a href="/access_denied/" class="menu_a">Друзья</a><br>
+            <a href="/access_denied/" class="menu_a">Сообщества</a>
+        {% endif %}
     </div>
     <br>
     {% block login %}

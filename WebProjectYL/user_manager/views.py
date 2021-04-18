@@ -4,8 +4,10 @@ from django.contrib.auth.models import User
 from django.db.models import Q
 from .forms import UserLoginForm, UserForm, ProfileForm, NewsForm
 from django.shortcuts import render, redirect
-from .models import NewsFile, News, Likes, Commentary, Repost, Posts, Profile,  FriendShip, FriendRequest, SubscriberShip
-from .serializers import LikesSerializer, UserSerializer, CommentsSerializer, RepostSerializer, FriendShipSerializer
+from .models import NewsFile, News, Likes, Commentary, Repost, Posts, Profile, FriendShip, \
+    FriendRequest, SubscriberShip
+from .serializers import LikesSerializer, UserSerializer, CommentsSerializer, RepostSerializer, \
+    FriendShipSerializer
 from .serializers import FriendRequestSerializer, SubscriberShipSerializer
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -189,7 +191,8 @@ def show_post(request, post_id):
                    'images': images[0],
                    'width': width[0],
                    'comments': comments[0],
-                   'tp': isinstance(post[0][0], News)})
+                   'tp': isinstance(post[0][0], News),
+                   'title': 'Новость'})
 
 
 def repost_origin(request, repost_id):
@@ -253,13 +256,15 @@ class FriendsAPI(APIView):
         if not user1 or not user2:
             return Response({"Error": "User does not exist"})
         status = user1.profile.is_friends(user2)
-        if status != 2 and status != 3:
+        if status != 2 and status != 3 and status != 5:
             return Response({"Error": "UsersRelationship error",
                              "UsersRelationship": status})
         if status == 2:
             friend_req = FriendRequest.objects.filter(requester=user1, friend=user2).first()
         elif status == 3:
             friend_req = FriendRequest.objects.filter(requester=user2, friend=user1).first()
+        elif status == 5:
+            friend_req = SubscriberShip.objects.filter(author=user2, subscriber=user1).first()
         serializer = FriendShipSerializer(data=data)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
@@ -282,7 +287,7 @@ class FriendsRequestAPI(APIView):
         status:
         0 - вернуть наши запросы и запросы к нам
         1 - вернуть наши запросы
-        2 - вернуть запросы к нами
+        2 - вернуть запросы к нам
         """
         user_id, status = user1_id, user2_id
         user = User.objects.filter(pk=user_id).first()
@@ -361,7 +366,8 @@ class SubscriberAPI(APIView):
         if status != 3:
             return Response({"Error": "UsersRelationship error",
                              "UsersRelationship": status})
-        req = FriendRequest.objects.filter(requester=data['subscriber'], friend=data['author']).first()
+        req = FriendRequest.objects.filter(requester=data['subscriber'],
+                                           friend=data['author']).first()
         serializer = SubscriberShipSerializer(data=data)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
@@ -405,7 +411,24 @@ def news_form(request):
                    'all_news': all_news,
                    'images': images,
                    'widths': width,
-                   'comments': comments})
+                   'comments': comments,
+                   'title': 'Новости'})
+
+
+def show_friends(request, user_id):
+    user = User.objects.filter(pk=user_id).first()
+    friends = list(FriendShip.objects.filter(Q(creator=user) | Q(friend=user)).all())
+    subscribers = list(SubscriberShip.objects.filter(author=user).all())
+    subscribes = list(SubscriberShip.objects.filter(subscriber=user).all())
+    reqs_to_you = list(FriendRequest.objects.filter(friend=user).all())
+    your_reqs = list(FriendRequest.objects.filter(requester=user).all())
+    return render(request, 'friends.html',
+                  {'title': 'Друзья',
+                   'friends': friends,
+                   'subscribers': subscribers,
+                   'subscribes': subscribes,
+                   'reqs_to_you': reqs_to_you,
+                   'your_reqs': your_reqs})
 
 
 class LoginView(FormView):
@@ -450,17 +473,21 @@ def register(request):
         profile_form = ProfileForm()
     return render(request, 'register.html', {
         'user_form': user_form,
-        'profile_form': profile_form
+        'profile_form': profile_form,
+        'title': 'Регистрация'
     })
 
 
-def unknown_homepage(request):
-    return render(request, 'unknown_homepage.html', {})
+def access_denied(request):
+    return render(request, 'access_denied.html', {'title': 'Доступ запрещен'})
 
 
 def homepage(request, user_id):
     user = User.objects.get(id=user_id)
-    is_friends = user.profile.is_friends(request.user)
+    if request.user.is_authenticated:
+        is_friends = request.user.profile.is_friends(user)
+    else:
+        is_friends = 6
     all_news = [(x, isinstance(x, News))
                 for x in sorted(list(user.news.all()) + list(user.repost.all()),
                                 key=lambda x: x.create_date, reverse=True)]
@@ -471,4 +498,5 @@ def homepage(request, user_id):
         'images': images,
         'widths': width,
         'all_news': all_news,
-        'comments': comments})
+        'comments': comments,
+        'title': 'Страница пользователя'})

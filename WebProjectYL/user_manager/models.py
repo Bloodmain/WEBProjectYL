@@ -94,6 +94,10 @@ class Profile(models.Model):
         verbose_name_plural = "Профили пользователей"
 
 
+class Community(models.Model):
+    pass
+
+
 class FriendRequest(models.Model):
     requester = models.ForeignKey(User, on_delete=models.CASCADE,
                                   verbose_name="тот кто отправляет запрос", related_name="our_requests")

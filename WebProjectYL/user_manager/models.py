@@ -28,9 +28,32 @@ class Profile(models.Model):
                               blank=False)
     birth_date = models.DateField(verbose_name='Дата рождения', null=True, blank=False)
 
+    def get_our_news(self):
+        return self.user.news.all()
+
+    def get_our_reposts(self):
+        return self.user.repost.all()
+
     def get_news_interesting_for_user(self):
-        post = sorted(list(self.user.news.all()), key=lambda x: x.create_date, reverse=True)
-        return post
+        news = []
+        for friend in self.get_friends():
+            for post in friend.profile.get_our_reposts():
+                news.append(post)
+            for post in friend.profile.get_our_news():
+                news.append(post)
+        for friend in self.get_our_friends_request():
+            for post in friend.profile.get_our_reposts():
+                news.append(post)
+            for post in friend.profile.get_our_news():
+                news.append(post)
+        for author in self.get_authors():
+            for post in author.profile.get_our_reposts():
+                news.append(post)
+            for post in author.profile.get_our_news():
+                news.append(post)
+        for post in self.get_our_news():
+            news.append(post)
+        return sorted(news, key=lambda x: x.create_date)
 
     def get_friends_request(self):
         "Возвращает все кто отправил нам запрос в друзья"

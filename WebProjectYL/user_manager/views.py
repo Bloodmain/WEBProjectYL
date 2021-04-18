@@ -1,13 +1,16 @@
 from django.contrib import messages
 from django.contrib.auth import login, logout
 from django.contrib.auth.models import User
+from django.db.models import Q
 from .forms import UserLoginForm, UserForm, ProfileForm, NewsForm
 from django.shortcuts import render, redirect
-from .models import NewsFile, News, Likes, Commentary, Repost, Posts, Profile
-from .serializers import LikesSerializer, UserSerializer, CommentsSerializer, RepostSerializer
+from .models import NewsFile, News, Likes, Commentary, Repost, Posts, Profile,  FriendShip, FriendRequest, SubscriberShip
+from .serializers import LikesSerializer, UserSerializer, CommentsSerializer, RepostSerializer, FriendShipSerializer
+from .serializers import FriendRequestSerializer, SubscriberShipSerializer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 import datetime
+import requests
 
 # Create your views here.
 from django.views import View
@@ -145,7 +148,6 @@ class RepostListAPI(APIView):
 class RepostAPI(APIView):
     def get(self, request, pk):
         repost = Repost.objects.filter(pk=pk).first()
-        print(repost)
         if not repost:
             return Response({"Error": "The object does not exist"})
         serializer = RepostSerializer(repost)
@@ -213,6 +215,167 @@ class SearchUserAPI(APIView):
         users = users_1 | users_2
         serializer = UserSerializer(users, many=True)
         return Response({"Users": serializer.data})
+
+
+class UsersRelationship(APIView):
+    def get(self, request, user1_id, user2_id):
+        user1 = User.objects.filter(pk=user1_id).first()
+        user2 = User.objects.filter(pk=user2_id).first()
+        if not user1 or not user2:
+            return Response({"Error": "User does not exist"})
+        status = user1.profile.is_friends(user2)
+        answer = {0: Response({"Status": 0, "Message": "Not friends"}),
+                  1: Response({"Status": 1, "Message": "Friends"}),
+                  2: Response({"Status": 2, "Message": "User1 made a request to User2"}),
+                  3: Response({"Status": 3, "Message": "User2 made a request to User1"}),
+                  4: Response({"Status": 4, "Message": "User2 is subscribed to User1"}),
+                  5: Response({"Status": 5, "Message": "User1 is subscribed to User2"}),
+                  6: Response({"Status": 6, "Message": "The objects are the same"})}
+        return answer[status]
+
+
+class FriendsAPI(APIView):
+    def get(self, request, user_id):
+        user = User.objects.filter(pk=user_id).first()
+        if not user:
+            return Response({"Error": "User does not exist"})
+        friends_ships = FriendShip.objects.filter(Q(creator=user) | Q(friend=user))
+        serializer = FriendShipSerializer(friends_ships, many=True)
+        return Response({"Friends": serializer.data})
+
+    def post(self, request):
+        data = request.data.copy()
+        if any([i not in data for i in ['creator', 'friend']]):
+            return Response({"Error": "Not all parameters were used"})
+        user1 = User.objects.filter(pk=data['creator']).first()
+        user2 = User.objects.filter(pk=data['friend']).first()
+        print(user2, user1)
+        if not user1 or not user2:
+            return Response({"Error": "User does not exist"})
+        status = user1.profile.is_friends(user2)
+        if status != 2 and status != 3:
+            return Response({"Error": "UsersRelationship error",
+                             "UsersRelationship": status})
+        if status == 2:
+            friend_req = FriendRequest.objects.filter(requester=user1, friend=user2).first()
+        elif status == 3:
+            friend_req = FriendRequest.objects.filter(requester=user2, friend=user1).first()
+        serializer = FriendShipSerializer(data=data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            friend_req.delete()
+            return Response({"Success": "OK"})
+        return Response({"Error": "Bad request"})
+
+    def delete(self, request, user1_id, user2_id):
+        friend_ship = FriendShip.objects.filter(Q(creator=user1_id, friend=user2_id) |
+                                                Q(creator=user2_id, friend=user1_id)).first()
+        if not friend_ship:
+            return Response({"Error": "The object does not exist"})
+        friend_ship.delete()
+        return Response({"Success": "OK"})
+
+
+class FriendsRequestAPI(APIView):
+    def get(self, request, user1_id, user2_id):
+        """
+        status:
+        0 - вернуть наши запросы и запросы к нам
+        1 - вернуть наши запросы
+        2 - вернуть запросы к нами
+        """
+        user_id, status = user1_id, user2_id
+        user = User.objects.filter(pk=user_id).first()
+        if not user:
+            return Response({"Error": "User does not exist"})
+        if status < 0 or status > 2:
+            return Response({"Error": "Invalid 'status' value"})
+        if status == 0:
+            req = FriendRequest.objects.filter(Q(requester=user) | Q(friend=user))
+        elif status == 1:
+            req = FriendRequest.objects.filter(requester=user)
+        else:
+            req = FriendRequest.objects.filter(friend=user)
+        serializer = FriendRequestSerializer(req, many=True)
+        return Response({"FriendsRequests": serializer.data})
+
+    def post(self, request):
+        data = request.data.copy()
+        if any([i not in data for i in ['requester', 'friend']]):
+            return Response({"Error": "Not all parameters were used"})
+        user1 = User.objects.filter(pk=data['requester']).first()
+        user2 = User.objects.filter(pk=data['friend']).first()
+        if not user1 or not user2:
+            return Response({"Error": "User does not exist"})
+        status = user1.profile.is_friends(user2)
+        if status != 0:
+            return Response({"Error": "UsersRelationship error",
+                             "UsersRelationship": status})
+        serializer = FriendRequestSerializer(data=data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response({"Success": "OK"})
+        return Response({"Error": "Bad request"})
+
+    def delete(self, request, user1_id, user2_id):
+        friends_req = FriendRequest.objects.filter(Q(requester=user1_id, friend=user2_id) |
+                                                   Q(requester=user2_id, friend=user1_id))
+        if not friends_req:
+            return Response({"Error": "The object does not exist"})
+        friends_req.delete()
+        return Response({"Success": "OK"})
+
+
+class SubscriberAPI(APIView):
+    def get(self, request, user1_id, user2_id):
+        """
+        status:
+        0 - вернуть наших подписчиков и на кого мы подписаны
+        1 - вернуть наших подписчиков
+        2 - вернуть на кого мы подписаны
+        """
+        user_id, status = user1_id, user2_id
+        user = User.objects.filter(pk=user_id).first()
+        if not user:
+            return Response({"Error": "User does not exist"})
+        if status < 0 or status > 2:
+            return Response({"Error": "Invalid 'status' value"})
+        if status == 0:
+            req = SubscriberShip.objects.filter(Q(subscriber=user) | Q(author=user))
+        elif status == 1:
+            req = SubscriberShip.objects.filter(author=user)
+        else:
+            req = SubscriberShip.objects.filter(subscriber=user)
+        serializer = SubscriberShipSerializer(req, many=True)
+        return Response({"SubscriberShip": serializer.data})
+
+    def post(self, request):
+        data = request.data.copy()
+        if any([i not in data for i in ['subscriber', 'author']]):
+            return Response({"Error": "Not all parameters were used"})
+        user1 = User.objects.filter(pk=data['author']).first()
+        user2 = User.objects.filter(pk=data['subscriber']).first()
+        if not user1 or not user2:
+            return Response({"Error": "User does not exist"})
+        status = user1.profile.is_friends(user2)
+        if status != 3:
+            return Response({"Error": "UsersRelationship error",
+                             "UsersRelationship": status})
+        req = FriendRequest.objects.filter(requester=data['subscriber'], friend=data['author']).first()
+        serializer = SubscriberShipSerializer(data=data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            req.delete()
+            return Response({"Success": "OK"})
+        return Response({"Error": "Bad request"})
+
+    def delete(self, request, user1_id, user2_id):
+        req = SubscriberShip.objects.filter(Q(subscriber=user2_id, author=user1_id) |
+                                            Q(subscriber=user1_id, author=user2_id)).first()
+        if not req:
+            return Response({"Error": "The object does not exist"})
+        req.delete()
+        return Response({"Success": "OK"})
 
 
 def news_form(request):

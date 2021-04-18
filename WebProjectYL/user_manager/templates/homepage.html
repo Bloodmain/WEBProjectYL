@@ -39,11 +39,25 @@
                 {% if user.is_authenticated %}
                     <div class="prf-btns">
                         {% if is_friends == 0 %}
-                            <img class="add-to-friends" src="{% static 'img/atf.png' %}" alt="+"
+                            <img class="send-friend-request" src="{% static 'img/atf.png' %}" alt="+"
                                  title="Добавить в друзья">
                         {% elif is_friends == 1 %}
                             <img class="delete-from-friends" alt="-"
                                  src="{% static 'img/dff.png' %}" title="Удалить из друзей">
+                        {% elif is_friends == 2 %}
+                            <img class="remove-friend-request" src="{% static 'img/dif.png' %}"
+                                 alt="+" title="Отозвать запрос дружбы.">
+                        {% elif is_friends == 3 %}
+                            <img class="add-to-friends" src="{% static 'img/atf.png' %}" alt="+"
+                                 title="Добавить в друзья. *Пользователь послал Вам запрос дружбы">
+                            <img class="leave-in-subs" src="{% static 'img/dif.png' %}" alt="+"
+                                 title="Оставить в подписчиках. *Пользователь послал Вам запрос дружбы">
+                        {% elif is_friends == 4 %}
+                            <img class="add-to-friends" src="{% static 'img/atf.png' %}" alt="+"
+                                 title="Добавить в друзья. *Пользователь подписан на Вас">
+                        {% elif is_friends == 5 %}
+                            <img class="leave-in-subs" src="{% static 'img/dif.png' %}" alt="+"
+                                 title="Отписаться. *Вы подписаны, так как пользователь не принял Ваш запрос">
                         {% endif %}
                         {% if is_friends != 6 %}
                             <img class="write-message" alt="Сообщение"
@@ -77,7 +91,8 @@
                                 </a>
                             {% endif %}
                             <span class="created_date">{{ news.create_date }}</span>
-                            <a class="show_post" href="/show_post/{{ news.post.id }}" title="Нажмите для просмотра записи">
+                            <a class="show_post" href="/show_post/{{ news.post.id }}"
+                               title="Нажмите для просмотра записи">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                                      fill="currentColor" class="bi bi-arrows-fullscreen"
                                      viewBox="0 0 16 16">

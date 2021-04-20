@@ -1,5 +1,4 @@
 from django.urls import path
-
 from . import views
 
 
@@ -10,6 +9,8 @@ urlpatterns = [
     path('register/', views.register),
     path('homepage/<int:user_id>', views.homepage),
     path('homepage/unknown', views.unknown_homepage),
+    path('chat/', views.index, name='index'),
+    path('chat/<str:room_name>/', views.room, name='room'),
     path('api/user', views.UserApi.as_view()),
     path('api/likes', views.LikeApiView.as_view()),
     path('api/likes/<str:unique_parameter>', views.LikeApiView.as_view()),

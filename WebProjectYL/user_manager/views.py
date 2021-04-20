@@ -4,9 +4,10 @@ from django.contrib.auth.models import User
 from django.db.models import Q
 from .forms import UserLoginForm, UserForm, ProfileForm, NewsForm
 from django.shortcuts import render, redirect
-from .models import NewsFile, News, Likes, Commentary, Repost, Profile, FriendShip, FriendRequest, SubscriberShip
-from .serializers import LikesSerializer, UserSerializer, CommentsSerializer, RepostSerializer, FriendShipSerializer
-from .serializers import FriendRequestSerializer, SubscriberShipSerializer
+from .models import NewsFile, News, Likes, Commentary, Repost, Profile, FriendShip, FriendRequest, SubscriberShip, \
+    Message, Chat
+from .serializers import LikesSerializer, UserSerializer, CommentsSerializer, RepostSerializer, FriendShipSerializer, \
+    FriendRequestSerializer, SubscriberShipSerializer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 import datetime
@@ -373,6 +374,16 @@ def news_form(request):
                    'images': images,
                    'widths': width,
                    'comments': comments})
+
+
+def index(request):
+    return render(request, '1.html')
+
+
+def room(request, room_name):
+    return render(request, '2.html', {
+        'room_name': room_name
+    })
 
 
 class LoginView(FormView):

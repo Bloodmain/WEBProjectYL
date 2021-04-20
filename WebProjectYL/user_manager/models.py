@@ -53,7 +53,7 @@ class Profile(models.Model):
                 news.append(post)
         for post in self.get_our_news():
             news.append(post)
-        return sorted(news, key=lambda x: x.create_date)
+        return sorted(news, key=lambda x: x.create_date, reverse=True)
 
     def get_friends_request(self):
         "Возвращает все кто отправил нам запрос в друзья"
@@ -119,6 +119,35 @@ class Profile(models.Model):
 
 class Community(models.Model):
     pass
+
+
+class Chat(models.Model):
+    CHAT = 'C'
+    DIALOG = 'D'
+    TYPES = (
+        (CHAT, 'Chat'),
+        (DIALOG, 'Dialog')
+    )
+    type = models.CharField(verbose_name='Тип', max_length=1, choices=TYPES, default=DIALOG)
+    members = models.ManyToManyField(User, verbose_name='Участник', related_name='chats')
+
+    class Meta:
+        verbose_name = 'Чат'
+        verbose_name_plural = 'Чаты'
+
+
+class Message(models.Model):
+    text = models.CharField(max_length=1000, verbose_name='Текст сообщения', default="")
+    author = models.ForeignKey(User, verbose_name="Автор", related_name="message", on_delete=models.CASCADE)
+    chat = models.ForeignKey(Chat, verbose_name="Чат", related_name="message", on_delete=models.CASCADE)
+    create_date = models.DateTimeField(verbose_name="Дата создания", default=datetime.datetime.now)
+
+    class Meta:
+        verbose_name = "Сообщение"
+        verbose_name_plural = 'Сообщения'
+
+    def __str__(self):
+        return self.text
 
 
 class FriendRequest(models.Model):
@@ -231,18 +260,18 @@ def create_post_news(sender, instance, created, **kwargs):
 
 
 @receiver(post_save, sender=News)
-def save_user_profile(sender, instance, **kwargs):
+def save_post_news(sender, instance, **kwargs):
     instance.post.save()
 
 
 @receiver(post_save, sender=Repost)
-def create_post_news(sender, instance, created, **kwargs):
+def create_post_repost(sender, instance, created, **kwargs):
     if created:
         Posts.objects.create(reposts=instance)
 
 
 @receiver(post_save, sender=Repost)
-def save_user_profile(sender, instance, **kwargs):
+def save_post_repost(sender, instance, **kwargs):
     instance.posts.save()
 
 

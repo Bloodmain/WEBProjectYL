@@ -31,6 +31,7 @@ urlpatterns = [
     path('api/subscriber/<int:user1_id>/<int:user2_id>', views.SubscriberAPI.as_view()),
     path('api/subscriber', views.SubscriberAPI.as_view()),
     path('friends/<int:user_id>', views.show_friends),
+    path('find_user/', views.find_user),
     path('chat/', views.index, name='index'),
     path('chat/<str:room_name>/', views.room, name='room')
 ]

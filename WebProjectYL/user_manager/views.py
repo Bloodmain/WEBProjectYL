@@ -431,6 +431,27 @@ def show_friends(request, user_id):
                    'your_reqs': your_reqs})
 
 
+def find_user(request):
+    r = request.GET.get('request', '')
+    req = r.lower().split(maxsplit=1)
+    users = []
+    if len(req) == 1:
+        name = req[0].replace('_', ' ')
+        users_1 = Profile.objects.filter(lname__icontains=name)
+        users_2 = Profile.objects.filter(lsurname__icontains=name)
+        users = (users_1 | users_2).all()
+    elif len(req) == 2:
+        name, surname = req[0].replace('_', ' '), req[1].replace('_', ' ')
+        users_1 = Profile.objects.filter(lname__icontains=name, lsurname__icontains=surname)
+        users_2 = Profile.objects.filter(lsurname__icontains=name, lname__icontains=surname)
+        users = (users_1 | users_2).all()
+
+    return render(request, 'find_user.html',
+                  {'title': 'Найти',
+                   'users': users,
+                   'req': r})
+
+
 def index(request):
     return render(request, '1.html')
 
@@ -472,6 +493,8 @@ def register(request):
             user.profile.status = profile_form.cleaned_data['status']
             user.profile.avatar = profile_form.cleaned_data['avatar']
             user.profile.birth_date = profile_form.cleaned_data['birth_date']
+            user.profile.lname = user_form.cleaned_data['first_name'].lower()
+            user.profile.lsurname = user_form.cleaned_data['last_name'].lower()
             user.profile.save()
 
             messages.success(request, 'Успешная регистрация!')

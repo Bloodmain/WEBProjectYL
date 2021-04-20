@@ -124,6 +124,11 @@
 
                 <br>
             {% endfor %}
+            <script>
+                $('.news_avatar').on('error', function () {
+                    this.src = "{% static 'img/standart_avatar.jpg'%}";
+                })
+            </script>
         </div>
     </div>
     <br><br>

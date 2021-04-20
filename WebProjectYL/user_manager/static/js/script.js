@@ -298,3 +298,10 @@ $('.leave-from-subs').click(function () {
         }
     });
 })
+
+$('.name-input').keyup(function (event) {
+    if (event.keyCode === 13) {
+        request = $('.name-input').val();
+        window.location.assign('/find_user/?request=' + request);
+    }
+})

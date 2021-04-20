@@ -27,6 +27,10 @@ class Profile(models.Model):
     status = models.CharField(max_length=75, default="", verbose_name="Статус", null=True,
                               blank=False)
     birth_date = models.DateField(verbose_name='Дата рождения', null=True, blank=False)
+    lname = models.CharField(max_length=50, verbose_name="Имя в нижнем регистре", null=True,
+                             blank=False)
+    lsurname = models.CharField(max_length=75, verbose_name="Фамилия в нижнем регистре", null=True,
+                                blank=False)
 
     def get_our_news(self):
         return self.user.news.all()
@@ -138,8 +142,10 @@ class Chat(models.Model):
 
 class Message(models.Model):
     text = models.CharField(max_length=1000, verbose_name='Текст сообщения', default="")
-    author = models.ForeignKey(User, verbose_name="Автор", related_name="message", on_delete=models.CASCADE)
-    chat = models.ForeignKey(Chat, verbose_name="Чат", related_name="message", on_delete=models.CASCADE)
+    author = models.ForeignKey(User, verbose_name="Автор", related_name="message",
+                               on_delete=models.CASCADE)
+    chat = models.ForeignKey(Chat, verbose_name="Чат", related_name="message",
+                             on_delete=models.CASCADE)
     create_date = models.DateTimeField(verbose_name="Дата создания", default=datetime.datetime.now)
 
     class Meta:

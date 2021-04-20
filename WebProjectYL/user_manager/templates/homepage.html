@@ -13,8 +13,7 @@
 
         <tr>
             <td>
-                <div class='ava'
-                     style='background-image: url("{{ page_owner.profile.avatar.url }}")'></div>
+                <img src="{{ page_owner.profile.avatar.url }}" alt="..." class="ava">
             </td>
             <td class="person-info">
                 <div class="person">
@@ -31,30 +30,42 @@
                 </div>
             </td>
         </tr>
+        <script>
+            $('.ava').on('error', function () {
+                this.src = "{% static 'img/standart_avatar.jpg'%}";
+            })
+        </script>
 
         <tr>
             <td>
                 {% if user.is_authenticated %}
                     <div class="prf-btns">
                         {% if is_friends == 0 %}
-                            <img class="send-friend-request {{ user.id }} {{ page_owner.id }}" src="{% static 'img/atf.png' %}" alt="+"
+                            <img class="send-friend-request {{ user.id }} {{ page_owner.id }}"
+                                 src="{% static 'img/atf.png' %}" alt="+"
                                  title="Добавить в друзья">
                         {% elif is_friends == 1 %}
-                            <img class="delete-from-friends {{ user.id }} {{ page_owner.id }}" alt="-"
+                            <img class="delete-from-friends {{ user.id }} {{ page_owner.id }}"
+                                 alt="-"
                                  src="{% static 'img/dff.png' %}" title="Удалить из друзей">
                         {% elif is_friends == 2 %}
-                            <img class="remove-friend-request {{ user.id }} {{ page_owner.id }}" src="{% static 'img/dif.png' %}"
+                            <img class="remove-friend-request {{ user.id }} {{ page_owner.id }}"
+                                 src="{% static 'img/dif.png' %}"
                                  alt="+" title="Отозвать запрос дружбы.">
                         {% elif is_friends == 3 %}
-                            <img class="add-to-friends {{ user.id }} {{ page_owner.id }}" src="{% static 'img/atf.png' %}" alt="+"
+                            <img class="add-to-friends {{ user.id }} {{ page_owner.id }}"
+                                 src="{% static 'img/atf.png' %}" alt="+"
                                  title="Добавить в друзья. *Пользователь послал Вам запрос дружбы">
-                            <img class="leave-in-subs {{ user.id }} {{ page_owner.id }}" src="{% static 'img/dif.png' %}" alt="+"
+                            <img class="leave-in-subs {{ user.id }} {{ page_owner.id }}"
+                                 src="{% static 'img/dif.png' %}" alt="+"
                                  title="Оставить в подписчиках. *Пользователь послал Вам запрос дружбы">
                         {% elif is_friends == 4 %}
-                            <img class="add-to-friends {{ user.id }} {{ page_owner.id }}" src="{% static 'img/atf.png' %}" alt="+"
+                            <img class="add-to-friends {{ user.id }} {{ page_owner.id }}"
+                                 src="{% static 'img/atf.png' %}" alt="+"
                                  title="Добавить в друзья. *Пользователь подписан на Вас">
                         {% elif is_friends == 5 %}
-                            <img class="leave-from-subs {{ user.id }} {{ page_owner.id }}" src="{% static 'img/dif.png' %}" alt="+"
+                            <img class="leave-from-subs {{ user.id }} {{ page_owner.id }}"
+                                 src="{% static 'img/dif.png' %}" alt="+"
                                  title="Отписаться. *Вы подписаны, так как пользователь не принял Ваш запрос">
                         {% endif %}
                         {% if is_friends != 6 %}
@@ -222,6 +233,11 @@
                             </div>
                             <br><br>
                         {% endfor %}
+                        <script>
+                            $('.news_avatar').on('error', function () {
+                                this.src = "{% static 'img/standart_avatar.jpg'%}";
+                            })
+                        </script>
                     {% else %}
                         <div class="no-posts">У пользователя ещё нет записей</div>
                     {% endif %}

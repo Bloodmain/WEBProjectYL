@@ -1,0 +1,29 @@
+{% extends "main.html" %}
+{% block content %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/find_user.css' %}">
+    <div class="name-input-div">
+        <input placeholder="Найти..." class="name-input" value="{{ req }}">
+    </div>
+    <br>
+
+    {% if not users %}
+        <div class="not-found">Ничего не найдено</div>
+    {% else %}
+        <div>Найден(-о) {{ users|length }} пользователя(-ь/-ей):</div>
+        <br>
+    {% endif %}
+    {% for u in users %}
+        <a href="/homepage/{{ u.user.id }}" class="author_url">
+            <img src="{{ u.avatar.url }}" alt="Аватарка"
+                 class="news_avatar comment-avatar">
+            <span class="creator_name">{{ u.name }} {{ u.surname }}</span>
+        </a>
+        <br>
+    {% endfor %}
+    <script>
+        $('.news_avatar').on('error', function () {
+            this.src = "{% static 'img/standart_avatar.jpg'%}";
+        })
+    </script>
+{% endblock %}

@@ -38,9 +38,11 @@
     <div class="menu">
         {% if user.is_authenticated %}
             <a href="/friends/{{ user.id }}" class="menu_a">Друзья</a><br>
+            <a href="/find_user" class="menu_a">Найти</a><br>
             <a href="/groups/{{ user.id }}" class="menu_a">Сообщества</a>
         {% else %}
             <a href="/access_denied/" class="menu_a">Друзья</a><br>
+            <a href="/find_user" class="menu_a">Найти</a><br>
             <a href="/access_denied/" class="menu_a">Сообщества</a>
         {% endif %}
     </div>
@@ -96,7 +98,8 @@
                 {% endif %}
 
                 <span class="created_date">{{ news.create_date }}</span>
-                <a class="show_post" href="/show_post/{{ news.post.id }}" title="Нажмите для просмотра записи">
+                <a class="show_post" href="/show_post/{{ news.post.id }}"
+                   title="Нажмите для просмотра записи">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                          fill="currentColor" class="bi bi-arrows-fullscreen" viewBox="0 0 16 16">
                         <path fill-rule="evenodd"
@@ -209,6 +212,11 @@
 
                         <br>
                     {% endfor %}
+                    <script>
+                        $('.news_avatar').on('error', function () {
+                            this.src = "{% static 'img/standart_avatar.jpg'%}";
+                        })
+                    </script>
                 </div>
             </div>
             <br><br>
@@ -216,5 +224,10 @@
     {% endblock %}
 </div>
 <script type="text/javascript" src="{% static 'js/script.js' %}"></script>
+<script>
+    $('.user_avatar').on('error', function () {
+        this.src = "{% static 'img/standart_avatar.jpg'%}";
+    })
+</script>
 </body>
 </html>

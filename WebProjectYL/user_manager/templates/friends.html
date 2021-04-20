@@ -67,7 +67,8 @@
                      class="news_avatar comment-avatar">
                 <span class="creator_name">{{ subscriber.subscriber.profile.name }} {{ subscriber.subscriber.profile.surname }}</span>
             </a>
-            <div class="friendship_creation_date">Подписан на Вас с {{ subscriber.create_date }}</div>
+            <div class="friendship_creation_date">Подписан на Вас
+                с {{ subscriber.create_date }}</div>
             <br>
         {% endfor %}
     {% else %}
@@ -90,4 +91,9 @@
     {% else %}
         <span>Вы ни на кого не подписаны</span>
     {% endif %}
+    <script>
+        $('.news_avatar').on('error', function () {
+            this.src = "{% static 'img/standart_avatar.jpg'%}";
+        })
+    </script>
 {% endblock %}

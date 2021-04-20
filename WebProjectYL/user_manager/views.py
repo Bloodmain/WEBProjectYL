@@ -5,7 +5,7 @@ from django.db.models import Q
 from .forms import UserLoginForm, UserForm, ProfileForm, NewsForm
 from django.shortcuts import render, redirect
 from .models import NewsFile, News, Likes, Commentary, Repost, Posts, Profile, FriendShip, \
-    FriendRequest, SubscriberShip
+    FriendRequest, SubscriberShip, Message, Chat
 from .serializers import LikesSerializer, UserSerializer, CommentsSerializer, RepostSerializer, \
     FriendShipSerializer
 from .serializers import FriendRequestSerializer, SubscriberShipSerializer
@@ -429,6 +429,16 @@ def show_friends(request, user_id):
                    'subscribes': subscribes,
                    'reqs_to_you': reqs_to_you,
                    'your_reqs': your_reqs})
+
+
+def index(request):
+    return render(request, '1.html')
+
+
+def room(request, room_name):
+    return render(request, '2.html', {
+        'room_name': room_name
+    })
 
 
 class LoginView(FormView):

@@ -1,5 +1,4 @@
 from django.urls import path
-
 from . import views
 
 
@@ -23,7 +22,6 @@ urlpatterns = [
     path('origin/<int:repost_id>', views.repost_origin),
     path('show_post/<int:post_id>', views.show_post),
     path('api/search_user/<str:request_api>', views.SearchUserAPI.as_view()),
-    path('api/search_user/<str:request_api>', views.SearchUserAPI.as_view()),
     path('api/users_relationship/<int:user1_id>/<int:user2_id>', views.UsersRelationship.as_view()),
     path('api/friends/<int:user1_id>/<int:user2_id>', views.FriendsAPI.as_view()),
     path('api/friends', views.FriendsAPI.as_view()),
@@ -32,5 +30,7 @@ urlpatterns = [
     path('api/friends_requests/<int:user1_id>/<int:user2_id>', views.FriendsRequestAPI.as_view()),
     path('api/subscriber/<int:user1_id>/<int:user2_id>', views.SubscriberAPI.as_view()),
     path('api/subscriber', views.SubscriberAPI.as_view()),
-    path('friends/<int:user_id>', views.show_friends)
+    path('friends/<int:user_id>', views.show_friends),
+    path('chat/', views.index, name='index'),
+    path('chat/<str:room_name>/', views.room, name='room')
 ]

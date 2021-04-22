@@ -384,6 +384,8 @@ def room(request, room_id):
     chat = Chat.objects.filter(pk=room_id).first()
     if not chat:
         return redirect('/chat')
+    if request.user not in chat.members.all():
+        return redirect('/chat')
     return render(request, '2.html', {
         'room_id': room_id
     })

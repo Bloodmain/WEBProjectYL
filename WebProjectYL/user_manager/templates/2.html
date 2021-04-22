@@ -27,7 +27,7 @@
             const data = JSON.parse(e.data);
             if (first_message){
                 first_message = false;
-                // data.messages - список списков [текст, имя пользователя,
+                // data.messages - список списков [текст, id пользователя, имя пользователя, дата отправки сообщения]
                 document.querySelector('#chat-log').value += (data.username + " " + data.messages + '\n');
             }
             else {

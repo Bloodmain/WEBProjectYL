@@ -18,8 +18,8 @@ class ChatConsumer(WebsocketConsumer):
 
             self.accept()
 
-            messages = [[msg.text, msg.author.profile.get_full_name(), str(msg.create_date)]
-                        for msg in Message.objects.filter(chat=self.room_id)]
+            messages = [[msg.text, msg.author.pk, msg.author.profile.get_full_name(), str(msg.create_date)]
+                        for msg in Message.objects.filter(chat=self.room_id).order_by('-create_date')]
             async_to_sync(self.channel_layer.group_send)(
                 self.room_group_id,
                 {

@@ -380,9 +380,12 @@ def index(request):
     return render(request, '1.html')
 
 
-def room(request, room_name):
+def room(request, room_id):
+    chat = Chat.objects.filter(pk=room_id).first()
+    if not chat:
+        return redirect('/chat')
     return render(request, '2.html', {
-        'room_name': room_name
+        'room_id': room_id
     })
 
 

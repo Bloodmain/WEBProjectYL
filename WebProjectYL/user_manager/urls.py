@@ -9,6 +9,8 @@ urlpatterns = [
     path('register/', views.register),
     path('homepage/<int:user_id>', views.homepage),
     path('access_denied/', views.access_denied),
+    path('chat/', views.index, name='index'),
+    path('chat/<int:room_id>/', views.room, name='room'),
     path('api/user', views.UserApi.as_view()),
     path('api/likes', views.LikeApiView.as_view()),
     path('api/likes/<str:unique_parameter>', views.LikeApiView.as_view()),
@@ -31,7 +33,5 @@ urlpatterns = [
     path('api/subscriber/<int:user1_id>/<int:user2_id>', views.SubscriberAPI.as_view()),
     path('api/subscriber', views.SubscriberAPI.as_view()),
     path('friends/<int:user_id>', views.show_friends),
-    path('find_user/', views.find_user),
-    path('chat/', views.index, name='index'),
-    path('chat/<str:room_name>/', views.room, name='room')
+    path('find_user/', views.find_user)
 ]

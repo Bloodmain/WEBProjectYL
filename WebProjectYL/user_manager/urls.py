@@ -6,7 +6,7 @@ from . import views
 
 
 urlpatterns = [
-    url(r'^favicon\.ico$', RedirectView.as_view(url='/static/img/favicon.ico'), name='favicon'),
+    url(r'^favicon\.ico$', RedirectView.as_view(url='/static/img/favicon.png'), name='favicon'),
     path('', views.news_form),
     path('login/', views.LoginView.as_view()),
     path('logout/', views.Logout.as_view()),

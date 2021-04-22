@@ -1,0 +1,46 @@
+{% extends "main.html" %}
+{% block content %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/messages.css' %}">
+    <div class="chats">
+        <table>
+            <tr>
+                {% if chats %}
+                    {% for chat in chats %}
+                        {% for member in chat.members.all %}
+                            {% if member != user %}
+                                {% if selected_chat == chat.id %}
+                                    <td class="selected">
+                                        <a href="/messages/{{ chat.id }}" class="author_url">
+                                            <img src="{{ member.profile.avatar.url }}" alt="Аватарка"
+                                                 class="news_avatar comment-avatar"><br>
+                                            <span class="creator_name">{{ member.profile.name }}<br>{{ member.profile.surname }}</span>
+                                        </a>
+                                    </td>
+                                {% else %}
+                                    <td>
+                                        <a href="/messages/{{ chat.id }}" class="author_url">
+                                            <img src="{{ member.profile.avatar.url }}" alt="Аватарка"
+                                                 class="news_avatar comment-avatar"><br>
+                                            <span class="creator_name">{{ member.profile.name }}<br>{{ member.profile.surname }}</span>
+                                        </a>
+                                    </td>
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                    {% endfor %}
+                {% else %}
+                    <td><span>У вас ещё нет чатов. Напишите кому-нибудь.</span></td>
+                {% endif %}
+            </tr>
+        </table>
+    </div>
+    <hr color="black">
+    <script>
+        $('.news_avatar').on('error', function () {
+            this.src = "{% static 'img/standart_avatar.jpg'%}";
+        })
+    </script>
+    {% block select %}
+    {% endblock %}
+{% endblock %}

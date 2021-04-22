@@ -14,24 +14,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.CreateModel(
-            name='Chat',
-            fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('type', models.CharField(choices=[('C', 'Chat'), ('D', 'Dialog')], default='D', max_length=1, verbose_name='Тип')),
-                ('members', models.ManyToManyField(related_name='chats', to=settings.AUTH_USER_MODEL, verbose_name='Участник')),
-            ],
-            options={
-                'verbose_name': 'Чат',
-                'verbose_name_plural': 'Чаты',
-            },
-        ),
-        migrations.CreateModel(
-            name='Community',
-            fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-            ],
-        ),
         migrations.AddField(
             model_name='profile',
             name='lname',
@@ -41,19 +23,5 @@ class Migration(migrations.Migration):
             model_name='profile',
             name='lsurname',
             field=models.CharField(max_length=75, null=True, verbose_name='Фамилия в нижнем регистре'),
-        ),
-        migrations.CreateModel(
-            name='Message',
-            fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('text', models.CharField(default='', max_length=1000, verbose_name='Текст сообщения')),
-                ('create_date', models.DateTimeField(default=datetime.datetime.now, verbose_name='Дата создания')),
-                ('author', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='message', to=settings.AUTH_USER_MODEL, verbose_name='Автор')),
-                ('chat', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='message', to='user_manager.chat', verbose_name='Чат')),
-            ],
-            options={
-                'verbose_name': 'Сообщение',
-                'verbose_name_plural': 'Сообщения',
-            },
-        ),
+        )
     ]

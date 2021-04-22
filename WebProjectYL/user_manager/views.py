@@ -428,7 +428,8 @@ def show_friends(request, user_id):
                    'subscribers': subscribers,
                    'subscribes': subscribes,
                    'reqs_to_you': reqs_to_you,
-                   'your_reqs': your_reqs})
+                   'your_reqs': your_reqs,
+                   'page_owner': user})
 
 
 def find_user(request):
@@ -452,19 +453,26 @@ def find_user(request):
                    'req': r})
 
 
-def index(request):
-    return render(request, '1.html')
+def chats(request):
+    all_chats = request.user.chats.all()
+    return render(request, 'messages.html',
+                  {'title': 'Сообщения',
+                   'chats': all_chats})
 
 
-def room(request, room_id):
-    chat = Chat.objects.filter(pk=room_id).first()
-    if not chat:
-        return redirect('/chat')
-    if request.user not in chat.members.all():
-        return redirect('/chat')
-    return render(request, '2.html', {
-        'room_id': room_id
-    })
+def show_chat(request, chat_id):
+    chat = Chat.objects.filter(pk=chat_id).first()
+    all_chats = request.user.chats.all()
+    return render(request, 'show_chat.html',
+                  {'title': 'Сообщения',
+                   'chats': all_chats,
+                   'selected_chat': chat_id,
+                   'chat_to_show': chat})
+
+
+def show_groups(request, group_id):
+    return render(request, 'groups.html',
+                  {'title': 'Сообщества'})
 
 
 class LoginView(FormView):

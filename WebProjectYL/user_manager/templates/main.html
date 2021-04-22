@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     {% load static %}
+    <link rel="shortcut icon" type="image/png" href="{% static 'img/favicon.ico' %}"/>
     <meta charset="UTF-8">
     <link rel="stylesheet"
           href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
@@ -22,11 +23,14 @@
         {% if user.is_authenticated %}
             <a href="/homepage/{{ user.id }}" class="scalable">Моя страница</a>
             <span class="scalable">|</span>
+            <a href="/messages/" class="scalable">Сообщения</a>
+            <span class="scalable">|</span>
         {% else %}
             <a href="/access_denied/" class="scalable">Моя страница</a>
             <span class="scalable">|</span>
+            <a href="/access_denied/" class="scalable">Сообщения</a>
+            <span class="scalable">|</span>
         {% endif %}
-        <a href="/messages/" class="scalable">Сообщения</a> <span class="scalable">|</span>
         <a href="/" class="scalable">Новости</a>
         <div class="menu_btn scalable">Меню</div>
     </nav>

@@ -1,0 +1,91 @@
+{% extends "messages.html" %}
+{% block select %}
+    {% load static %}
+    {{ selected_chat|json_script:"chat-id" }}
+    <div class="dialog">
+        <table class="table-chat">
+            <tr></tr>
+        </table>
+    </div>
+    <hr color="black">
+    <div class="message-creation input-group mb-3">
+        <input class="form-control message-input"
+                  placeholder="Введите сообщение"
+                  aria-label="Сообщение"
+                  aria-describedby="button-addon2">
+        <div class="input-group-append">
+            <button type="button"
+                    class="btn btn-outline-secondary send-message">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20 "
+                     fill="currentColor" class="bi bi-cursor"
+                     viewBox="0 0 16 16">
+                    <path d="M14.082 2.182a.5.5 0 0 1 .103.557L8.528 15.467a.5.5 0 0 1-.917-.007L5.57 10.694.803 8.652a.5.5 0 0 1-.006-.916l12.728-5.657a.5.5 0 0 1 .556.103zM2.25 8.184l3.897 1.67a.5.5 0 0 1 .262.263l1.67 3.897L12.743 3.52 2.25 8.184z"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+
+    <script>
+        const chatID = JSON.parse(document.getElementById('chat-id').textContent);
+
+        const chatSocket = new WebSocket(
+            'ws://'
+            + window.location.host
+            + '/ws/chat/'
+            + chatID
+            + '/'
+        );
+
+        var user = null;
+        $.get('/api/user', {}, function (data) {
+            user = data['user']['user'];
+        })
+
+        var first_message = true;
+
+        chatSocket.onmessage = function (e) {
+            const data = JSON.parse(e.data);
+            if (first_message) {
+                first_message = false;
+                for (var k in data.messages) {
+                    var message = data.messages[k];
+                    var tp = 'other-message'
+                    if (message[1] === user) {
+                        tp = 'our-message'
+                    }
+
+                    $('.table-chat tr:last').after('<tr><td class="' + tp + '"><div class="date-send">' + message[2] + '</div><br><div class="message">' + message[0] + '</div></td></tr>');
+                }
+            } else {
+                var tp = 'other-message'
+                if (data.uid === user) {
+                    tp = 'our-message'
+                }
+                $('.table-chat tr:last').after('<tr><td class="' + tp + '"><div class="date-send">' + data.date + '</div><br><div class="message">' + data.message + '</div></td></tr>');
+            }
+            var div = $(".dialog");
+            div.scrollTop(div.prop('scrollHeight'));
+        };
+
+        chatSocket.onclose = function (e) {
+            console.error('Chat socket closed unexpectedly');
+        };
+
+
+        $('.message-input').focus();
+        $('.message-input').onkeyup = function (e) {
+            if (e.keyCode === 13) {
+                $('.send-message').click();
+            }
+        };
+
+        $('.send-message').click(function () {
+            const inputDOM = $('.message-input')
+            chatSocket.send(JSON.stringify({
+                'message': inputDOM.val()
+            }));
+            inputDOM.val('');
+        })
+    </script>
+{% endblock %}

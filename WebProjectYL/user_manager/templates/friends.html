@@ -3,7 +3,7 @@
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/friends.css' %}">
 
-    {% if reqs_to_you %}
+    {% if reqs_to_you and user == page_owner  %}
         <h1>Заявки в друзья</h1>
         <hr color="black">
         {% for req in reqs_to_you %}
@@ -22,7 +22,7 @@
     <hr color="black">
     {% if friends %}
         {% for friend in friends %}
-            {% if friend.friend != user %}
+            {% if friend.friend != page_owner %}
                 <a href="/homepage/{{ friend.friend.id }}" class="author_url">
                     <img src="{{ friend.friend.profile.avatar.url }}" alt="Аватарка"
                          class="news_avatar comment-avatar">
@@ -43,7 +43,7 @@
     {% endif %}
     <br><br>
 
-    {% if your_reqs %}
+    {% if your_reqs and user == page_owner %}
         <h1>Ваши запросы дружбы</h1>
         <hr color="black">
         {% for req in your_reqs %}
@@ -76,7 +76,7 @@
     {% endif %}
     <br><br>
 
-    <h1>Ваши подписки</h1>
+    <h1>Подписки</h1>
     <hr color="black">
     {% if subscribes %}
         {% for subscribe in subscribes %}

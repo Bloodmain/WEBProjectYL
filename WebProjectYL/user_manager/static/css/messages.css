@@ -1,0 +1,59 @@
+.chats {
+    overflow-x: auto;
+}
+
+.chats::-webkit-scrollbar {
+    border-radius: 20px;
+}
+
+.chats::-webkit-scrollbar-thumb {
+    background: #e2e2e2;
+    border-radius: 20px;
+    border: 1px solid black;
+}
+
+td {
+    text-align: center;
+}
+
+.selected {
+    background: #b1deff;
+    border-radius: 10px;
+}
+
+.dialog {
+    height: 70%;
+    overflow-y: auto;
+}
+
+.message {
+    width: 50%;
+    border-radius: 20px;
+    border: 1px solid black;
+    word-break: break-all;
+}
+
+.other-message .message {
+    background: #e2e2e2;
+}
+
+.other-message .date-send {
+    float: left;
+}
+
+.our-message .date-send {
+    float: right;
+}
+
+.our-message .message {
+    background: #d1e1e9;
+    float: right;
+}
+
+.dialog td {
+    width: 100vw;
+}
+
+.chats td {
+    width: 5vw;
+}

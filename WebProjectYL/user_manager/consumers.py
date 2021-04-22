@@ -17,14 +17,15 @@ class ChatConsumer(WebsocketConsumer):
             )
 
             self.accept()
-            messages = [[msg.text, msg.author.pk, msg.author.profile.get_full_name(), str(msg.create_date)]
-                        for msg in Message.objects.filter(chat=self.room_id).order_by('-create_date')]
+            messages = [
+                [msg.text, msg.author.pk, msg.create_date.strftime("%Y-%m-%d %H:%M")]
+                for msg in Message.objects.filter(chat=self.room_id).order_by('create_date')]
             async_to_sync(self.channel_layer.group_send)(
                 self.room_group_id,
                 {
                     'type': 'chat_message',
                     'messages': messages,
-                    'username': self.user.profile.get_full_name()
+                    'uid': self.user.id
                 }
             )
 
@@ -36,29 +37,29 @@ class ChatConsumer(WebsocketConsumer):
         )
 
     def receive(self, text_data):
-        "Отсюда он идет в chat_message"
+        """Отсюда он идет в chat_message"""
         text_data_json = json.loads(text_data)
         message = text_data_json['message']
-        Message.objects.create(text=message, author=self.user, chat=self.chat)
+        m = Message.objects.create(text=message, author=self.user, chat=self.chat)
         async_to_sync(self.channel_layer.group_send)(
             self.room_group_id,
             {
                 'type': 'chat_message',
                 'message': message,
-                'username': self.user.profile.get_full_name()
+                'uid': self.user.id,
+                'date': m.create_date.strftime("%Y-%m-%d %H:%M")
             }
         )
 
     def chat_message(self, event):
-        "А от сюда уже шлет сообщение"
+        """А от сюда уже шлет сообщение"""
         if 'messages' in event:
             self.send(text_data=json.dumps({
-                'messages': event['messages'],
-                'username': event['username']
+                'messages': event['messages']
             }))
         else:
-            message = event['message']
             self.send(text_data=json.dumps({
-                'message': message,
-                'username': event['username']
+                'message': event['message'],
+                'uid': event['uid'],
+                'date': event['date']
             }))

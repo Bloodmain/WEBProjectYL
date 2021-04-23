@@ -2,6 +2,7 @@
 {% block select %}
     {% load static %}
     {{ selected_chat|json_script:"chat-id" }}
+    {{ user.id|json_script:"user" }}
     <div class="dialog">
         <table class="table-chat">
             <tr></tr>
@@ -25,67 +26,5 @@
         </div>
     </div>
 
-
-    <script>
-        const chatID = JSON.parse(document.getElementById('chat-id').textContent);
-
-        const chatSocket = new WebSocket(
-            'ws://'
-            + window.location.host
-            + '/ws/chat/'
-            + chatID
-            + '/'
-        );
-
-        var user = null;
-        $.get('/api/user', {}, function (data) {
-            user = data['user']['user'];
-        })
-
-        var first_message = true;
-
-        chatSocket.onmessage = function (e) {
-            const data = JSON.parse(e.data);
-            if (first_message) {
-                first_message = false;
-                for (var k in data.messages) {
-                    var message = data.messages[k];
-                    var tp = 'other-message'
-                    if (message[1] === user) {
-                        tp = 'our-message'
-                    }
-
-                    $('.table-chat tr:last').after('<tr><td class="' + tp + '"><div class="date-send">' + message[2] + '</div><br><div class="message">' + message[0] + '</div></td></tr>');
-                }
-            } else {
-                var tp = 'other-message'
-                if (data.uid === user) {
-                    tp = 'our-message'
-                }
-                $('.table-chat tr:last').after('<tr><td class="' + tp + '"><div class="date-send">' + data.date + '</div><br><div class="message">' + data.message + '</div></td></tr>');
-            }
-            var div = $(".dialog");
-            div.scrollTop(div.prop('scrollHeight'));
-        };
-
-        chatSocket.onclose = function (e) {
-            console.error('Chat socket closed unexpectedly');
-        };
-
-
-        $('.message-input').focus();
-        $('.message-input').onkeyup = function (e) {
-            if (e.keyCode === 13) {
-                $('.send-message').click();
-            }
-        };
-
-        $('.send-message').click(function () {
-            const inputDOM = $('.message-input')
-            chatSocket.send(JSON.stringify({
-                'message': inputDOM.val()
-            }));
-            inputDOM.val('');
-        })
-    </script>
+    <script type="text/javascript" src="{% static 'js/chat.js' %}"></script>
 {% endblock %}

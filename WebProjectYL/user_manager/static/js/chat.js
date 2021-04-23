@@ -21,14 +21,15 @@ chatSocket.onmessage = function (e) {
             if (message[1] === user) {
                 tp = 'our-message'
             }
-            console.log(message)
             $('.table-chat tr:last').after('<tr><td class="' + tp + '"><div class="date-send">' + message[2] + '</div><br><div class="message">' + message[0] + '</div></td></tr>');
         }
     } else {
         var tp = 'other-message'
-        console.log(data)
         if (data.uid === user) {
             tp = 'our-message'
+        }
+        if (!data.message) {
+            return;
         }
         $('.table-chat tr:last').after('<tr><td class="' + tp + '"><div class="date-send">' + data.date + '</div><br><div class="message">' + data.message + '</div></td></tr>');
     }

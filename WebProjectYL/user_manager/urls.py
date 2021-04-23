@@ -39,5 +39,6 @@ urlpatterns = [
     path('messages/', views.chats),
     path('messages/<int:chat_id>', views.show_chat),
     path('api/chats/<int:uid1>/<int:uid2>', views.ChatsAPI.as_view()),
+    path('api/status', views.StatusAPI.as_view()),
     path('groups/<int:group_id>', views.show_groups)
 ]

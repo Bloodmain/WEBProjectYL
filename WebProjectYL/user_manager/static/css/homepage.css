@@ -3,6 +3,10 @@
     font-family: "Segoe Script";
 }
 
+.status-input {
+    width: 70%;
+}
+
 .person {
     width: fit-content;
     margin: auto;
@@ -80,4 +84,9 @@ td:first-child {
 
 .no-posts {
     text-align: center;
+}
+
+.status-input {
+    text-align: right;
+    border: none;
 }

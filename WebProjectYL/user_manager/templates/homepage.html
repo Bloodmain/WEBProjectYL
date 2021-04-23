@@ -5,7 +5,15 @@
 
     <link href="{% static 'css/homepage.css' %}" rel="stylesheet">
     <div class="status">
-        {{ page_owner.profile.status }}
+        {% if user == page_owner %}
+            {% if not page_owner.profile.status %}
+                <textarea class="status-input {{ page_owner.id }}">У вас нет статуса. Напишите что-нибудь...</textarea>
+            {% else %}
+                <textarea class="status-input {{ page_owner.id }}">{{ page_owner.profile.status }}</textarea>
+            {% endif %}
+        {% else %}
+            <textarea class="status-input {{ page_owner.id }}" readonly>{{ page_owner.profile.status }}</textarea>
+        {% endif %}
     </div>
     {% load index %}
     {% load file_name %}

@@ -321,3 +321,27 @@ $('.write-message').click(function () {
         }
     })
 })
+
+$('.status-input').keyup(function (event) {
+    const el = $(this);
+    if (el.attr('readonly'))
+        return;
+    var uid = el.attr('class').split(' ')[1];
+    if (event.keyCode === 13 && !event.shiftKey) {
+        $.ajax({
+                type: 'PUT',
+                url: '/api/status',
+                data: {new_value: el.val().trim(), uid: uid},
+                dataType: 'json',
+                success: function () {
+                    location.reload()
+                }
+            }
+        )
+    }
+})
+
+$('.status-input').keypress(function (event) {
+    if (event.keyCode === 13 && !event.shiftKey)
+        event.preventDefault();
+})

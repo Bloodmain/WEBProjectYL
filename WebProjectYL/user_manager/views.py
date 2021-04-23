@@ -331,6 +331,20 @@ class FriendsRequestAPI(APIView):
         return Response({"Success": "OK"})
 
 
+class StatusAPI(APIView):
+    def put(self, request):
+        if any([i not in request.data for i in ['uid', 'new_value']]):
+            return Response({"Error": "Not all parameters were used"})
+        uid, new_value = request.data['uid'], request.data['new_value']
+        user = User.objects.filter(id=uid).first()
+        if not user:
+            return Response({'Error': 'User does not exist'})
+        if user.profile.status != new_value:
+            user.profile.status = new_value
+        user.profile.save()
+        return Response({'Success': 'OK'})
+
+
 class SubscriberAPI(APIView):
     def get(self, request, user1_id, user2_id):
         """

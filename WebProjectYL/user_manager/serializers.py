@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from .models import Likes, Commentary, Profile, Repost, FriendShip, FriendRequest, SubscriberShip
+from .models import Likes, Commentary, Profile, Repost, FriendShip, FriendRequest, SubscriberShip, \
+    Chat
 
 
 class RepostSerializer(serializers.ModelSerializer):
@@ -24,6 +25,12 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
         fields = ['user', 'name', 'surname', 'bio', 'status', 'birth_date']
+
+
+class ChatSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Chat
+        fields = ['id', 'members']
 
 
 class CommentsSerializer(serializers.ModelSerializer):

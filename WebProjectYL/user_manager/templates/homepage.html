@@ -69,7 +69,7 @@
                                  title="Отписаться. *Вы подписаны, так как пользователь не принял Ваш запрос">
                         {% endif %}
                         {% if is_friends != 6 %}
-                            <img class="write-message" alt="Сообщение"
+                            <img class="write-message {{ user.id }} {{ page_owner.id }}" alt="Сообщение"
                                  src="{% static 'img/text.png' %}" title="Отправить сообщение">
                         {% endif %}
                     </div>

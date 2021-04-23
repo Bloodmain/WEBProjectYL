@@ -305,3 +305,19 @@ $('.name-input').keyup(function (event) {
         window.location.assign('/find_user/?request=' + request);
     }
 })
+
+$('.write-message').click(function () {
+    var element = $(this);
+    var uid1 = element.attr('class').split(' ')[1];
+    var uid2 = element.attr('class').split(' ')[2];
+    $.get('/api/chats/' + uid1 + '/' + uid2, {}, function (data) {
+        if ('Error' in data) {
+            $.post('/api/chats/' + uid1 + '/' + uid2, {}, function (data) {
+                console.log(data)
+                window.location.assign('/messages/' + data['Chat_id'])
+            })
+        } else {
+            window.location.assign('/messages/' + data['Chat']['id'])
+        }
+    })
+})

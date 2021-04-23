@@ -7,7 +7,7 @@ from django.shortcuts import render, redirect
 from .models import NewsFile, News, Likes, Commentary, Repost, Posts, Profile, FriendShip, \
     FriendRequest, SubscriberShip, Message, Chat
 from .serializers import LikesSerializer, UserSerializer, CommentsSerializer, RepostSerializer, \
-    FriendShipSerializer
+    FriendShipSerializer, ChatSerializer
 from .serializers import FriendRequestSerializer, SubscriberShipSerializer
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -382,6 +382,26 @@ class SubscriberAPI(APIView):
             return Response({"Error": "The object does not exist"})
         req.delete()
         return Response({"Success": "OK"})
+
+
+class ChatsAPI(APIView):
+    def get(self, request, uid1, uid2):
+        for chat in Chat.objects.all():
+            if uid1 in map(lambda x: x.id, chat.members.all()) and uid2 in map(lambda x: x.id,
+                                                                               chat.members.all()):
+                ser = ChatSerializer(chat)
+                return Response({'Chat': ser.data})
+        return Response({'Error': 'The object does not exist'})
+
+    def post(self, request, uid1, uid2):
+        if 'Error' in self.get(request, uid1, uid2).data:
+            ser = ChatSerializer(data={'members': [uid1, uid2]})
+            if ser.is_valid(raise_exception=True):
+                ser.save()
+                chat = self.get(request, uid1, uid2).data['Chat']['id']
+                return Response({'Success': 'OK', 'Chat_id': chat})
+            return Response({'Error': 'Bad request'})
+        return Response({'Error': 'Object already exists'})
 
 
 def news_form(request):

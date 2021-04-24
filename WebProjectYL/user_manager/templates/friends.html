@@ -39,7 +39,11 @@
             <br>
         {% endfor %}
     {% else %}
-        <span>У Вас ещё нет друзей...</span>
+        {% if user == page_owner %}
+            <span>У Вас ещё нет друзей...</span>
+        {% else %}
+            <span>У пользователя ещё нет друзей...</span>
+        {% endif %}
     {% endif %}
     <br><br>
 
@@ -72,7 +76,11 @@
             <br>
         {% endfor %}
     {% else %}
-        <span>У Вас нет подписчиков</span>
+        {% if user == page_owner %}
+            <span>У Вас нет подписчиков</span>
+        {% else %}
+            <span>У пользователя нет подписчиков</span>
+        {% endif %}
     {% endif %}
     <br><br>
 
@@ -89,7 +97,11 @@
             <br>
         {% endfor %}
     {% else %}
-        <span>Вы ни на кого не подписаны</span>
+        {% if user == page_owner %}
+            <span>Вы ни на кого не подписаны</span>
+        {% else %}
+            <span>Пользователь ни на кого не подписан</span>
+        {% endif %}
     {% endif %}
     <script>
         $('.news_avatar').on('error', function () {

@@ -9,6 +9,10 @@ import random
 # Create your models here.
 
 
+def community_avatar_directory(instance, filename):
+    return f"community/{instance.id}/avatar.jpg"
+
+
 def avatars_directory(instance, filename):
     return f"users/{instance.user.id}/avatar.jpg"
 
@@ -122,7 +126,26 @@ class Profile(models.Model):
 
 
 class Community(models.Model):
-    pass
+    creator = models.ForeignKey(User, related_name="communities_creator", on_delete=models.CASCADE)
+    title = models.CharField(max_length=75, verbose_name="Название сообщества", null=True, blank=False)
+    describe = models.TextField(max_length=1000, verbose_name="Описание сообщества", null=True, blank=False)
+    avatar = models.FileField(null=True, blank=True, upload_to=community_avatar_directory)
+    admins = models.ManyToManyField(User, related_name="communities_admin", verbose_name="Админы", null=True, blank=True)
+    members = models.ManyToManyField(User, related_name="communities", verbose_name="Подписчики", null=True, blank=True)
+
+    def get_user_status(self, user):
+        if user == self.creator:
+            return 1
+        elif user in self.admins.all():
+            return 2
+        elif user in self.members.all():
+            return 3
+        else:
+            return 0
+
+    class Meta:
+        verbose_name = 'Сообщество'
+        verbose_name_plural = 'Сообщества'
 
 
 class Chat(models.Model):
@@ -209,8 +232,8 @@ class NewsFile(models.Model):
     file = models.FileField(null=True, blank=True, upload_to=news_files_directory)
 
     class Meta:
-        verbose_name = "Файл"
-        verbose_name_plural = "Файлы"
+        verbose_name = "Файл новости"
+        verbose_name_plural = "Файлы новостей"
 
 
 class Repost(models.Model):
@@ -223,11 +246,24 @@ class Repost(models.Model):
         verbose_name_plural = 'Репосты'
 
 
+class CommunityPost(models.Model):
+    community = models.ForeignKey(Community, on_delete=models.CASCADE, related_name="news")
+    text_content = models.TextField(max_length=1000, verbose_name='Контент', blank=False)
+    likes = models.IntegerField(default=0, verbose_name='Лайки')
+    create_date = models.DateTimeField(verbose_name='дата создания', default=datetime.datetime.now)
+
+    class Meta:
+        verbose_name = "Новость сообщества"
+        verbose_name_plural = "Новости сообществ"
+
+
 class Posts(models.Model):
     news = models.OneToOneField(News, on_delete=models.CASCADE, null=True, blank=True,
                                 related_name='post')
     reposts = models.OneToOneField(Repost, on_delete=models.CASCADE, null=True, blank=True,
                                    related_name='post')
+    community_news = models.OneToOneField(CommunityPost, on_delete=models.CASCADE, null=True, blank=True,
+                                          related_name="post")
 
     class Meta:
         verbose_name = "Пост"
@@ -262,6 +298,17 @@ class Commentary(models.Model):
     class Meta:
         verbose_name = "Комментарий"
         verbose_name_plural = "Коммментарии"
+
+
+@receiver(post_save, sender=CommunityPost)
+def create_post_on_news(sender, instance, created, **kwargs):
+    if created:
+        Posts.objects.create(community_news=instance)
+
+
+@receiver(post_save, sender=CommunityPost)
+def save_post_on_news(sender, instance, **kwargs):
+    instance.post.save()
 
 
 @receiver(post_save, sender=News)

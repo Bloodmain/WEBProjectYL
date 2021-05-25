@@ -13,6 +13,13 @@ class AdminProfile(admin.ModelAdmin):
         model = Profile
 
 
+class AdminCommunity(admin.ModelAdmin):
+    list_display = ['creator', 'title']
+
+    class Meta:
+        model = Community
+
+
 class AdminChat(admin.ModelAdmin):
     class Meta:
         model = Chat
@@ -97,3 +104,4 @@ admin.site.register(FriendRequest, AdminFriendRequest)
 admin.site.register(SubscriberShip, AdminSubscriberShip)
 admin.site.register(Chat, AdminChat)
 admin.site.register(Message, AdminMessage)
+admin.site.register(Community, AdminCommunity)

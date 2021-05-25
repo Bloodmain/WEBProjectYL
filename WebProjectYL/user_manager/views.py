@@ -5,9 +5,9 @@ from django.db.models import Q
 from .forms import UserLoginForm, UserForm, ProfileForm, NewsForm
 from django.shortcuts import render, redirect
 from .models import NewsFile, News, Likes, Commentary, Repost, Posts, Profile, FriendShip, \
-    FriendRequest, SubscriberShip, Message, Chat
+    FriendRequest, SubscriberShip, Message, Chat, Community
 from .serializers import LikesSerializer, UserSerializer, CommentsSerializer, RepostSerializer, \
-    FriendShipSerializer, ChatSerializer
+    FriendShipSerializer, ChatSerializer, CommunitySerializer, CommunityAddSerializer
 from .serializers import FriendRequestSerializer, SubscriberShipSerializer
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -73,6 +73,95 @@ class FindPost(APIView):
             post = post.reposts.posts
             ans = post.pk
         return Response({"Post_id": str(ans)})
+
+
+class SearchCommunityApi(APIView):
+    def get(self, request, community_title):
+        communties = Community.objects.filter(title__contains=community_title).all()
+        ser = CommentsSerializer(communties, many=True)
+        return Response({"Communities": ser.data})
+
+
+class UserCommunityStatus(APIView):
+    def get(self, request, community_pk, user_pk):
+        community = Community.objects.filter(pk=community_pk).first()
+        if not community:
+            return Response({"Error": "Community does not exist"})
+        user = User.objects.filter(pk=user_pk).first()
+        if not user:
+            return Response({"Error": "User does not exist"})
+        answer = {
+            0: Response({"Status": 0,
+                         "Message": "Has no connections"}),
+            1: Response({"Status": 1,
+                         "Message": "Сreator"}),
+            2: Response({"Status": 2,
+                         "Message": "Admin"}),
+            3: Response({"Status": 3,
+                         "Message": "Member"})
+        }
+        status = community.get_user_status(user)
+        return answer[status]
+
+    def post(self, request):
+        data = request.data.copy()
+        user_pk = data['user_pk']
+        community_pk = data['community_pk']
+        status = int(data['status'])
+        community = Community.objects.filter(pk=community_pk).first()
+        if not community:
+            return Response({"Error": "Community does not exist"})
+        user = User.objects.filter(pk=user_pk).first()
+        if not user:
+            return Response({"Error": "User does not exist"})
+        if status == 2:
+            community.admins.add(user)
+        elif status == 3:
+            print(status)
+            community.members.add(user)
+        else:
+            return Response({"Error": "Status error"})
+        return Response({"Success": "OK"})
+
+    def delete(self, request, community_pk, user_pk, status):
+        community = Community.objects.filter(pk=community_pk).first()
+        if not community:
+            return Response({"Error": "Community does not exist"})
+        user = User.objects.filter(pk=user_pk).first()
+        if not user:
+            return Response({"Error": "User does not exist"})
+        if status == 2 and community.get_user_status(user) == 2:
+            community.admins.remove(user)
+            return Response({"Success": "OK"})
+        elif status == 3 and community.get_user_status(user) == 3:
+            community.admins.remove(user)
+            return Response({"Success": "OK"})
+        else:
+            return Response({"Error": "Status error"})
+
+
+class CommunityApi(APIView):
+    def get(self, request, pk):
+        community = Community.objects.filter(pk=pk).first()
+        if not community:
+            return Response({"Error": "The object does not exist"})
+        ser = CommunitySerializer(community)
+        return Response({"Community": ser.data})
+
+    def post(self, request):
+        data = request.data.copy()
+        ser = CommunityAddSerializer(data=data)
+        if ser.is_valid(raise_exception=True):
+            ser.save()
+            return Response({"Success": "OK"})
+        return Response({"Error": "Bad request"})
+
+    def delete(self, request, pk):
+        community = Community.objects.filter(pk=pk).first()
+        if not community:
+            return Response({"Error": "The object does not exist"})
+        community.delete()
+        return Response({"Success": "OK"})
 
 
 class LikeApiView(APIView):

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import Likes, Commentary, Profile, Repost, FriendShip, FriendRequest, SubscriberShip, \
-    Chat
+    Chat, Community
 
 
 class RepostSerializer(serializers.ModelSerializer):
@@ -25,6 +25,21 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
         fields = ['user', 'name', 'surname', 'bio', 'status', 'birth_date']
+
+
+class CommunitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Community
+        fields = ['pk', 'creator', 'title', 'describe', 'admins', 'members']
+
+
+class CommunityAddSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Community
+        fields = ['creator', 'title', 'describe']
+
+    def create(self, validated_data):
+        return Community.objects.create(**validated_data)
 
 
 class ChatSerializer(serializers.ModelSerializer):

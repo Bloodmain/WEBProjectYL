@@ -26,10 +26,6 @@ class Migration(migrations.Migration):
             name='likes',
             options={'verbose_name': 'Лайк', 'verbose_name_plural': 'Лайки'},
         ),
-        migrations.RemoveField(
-            model_name='commentary',
-            name='unique_parameter',
-        ),
         migrations.AddField(
             model_name='friendrequest',
             name='create_date',

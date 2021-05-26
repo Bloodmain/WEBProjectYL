@@ -5,7 +5,7 @@ from django.db.models import Q
 from .forms import UserLoginForm, UserForm, ProfileForm, NewsForm
 from django.shortcuts import render, redirect
 from .models import NewsFile, News, Likes, Commentary, Repost, Posts, Profile, FriendShip, \
-    FriendRequest, SubscriberShip, Message, Chat, Community
+    FriendRequest, SubscriberShip, Message, Chat, Community, CommunityPostFiles, CommunityPost
 from .serializers import LikesSerializer, UserSerializer, CommentsSerializer, RepostSerializer, \
     FriendShipSerializer, ChatSerializer, CommunitySerializer, CommunityAddSerializer
 from .serializers import FriendRequestSerializer, SubscriberShipSerializer
@@ -54,6 +54,9 @@ def get_news_data(all_news):
 
 
 class UserApi(APIView):
+    """
+    API для профиля пользователя. Возращает всю информацию о нем.
+    """
     def get(self, request):
         if not request.user.is_authenticated:
             return Response({'Error': 'Unauthenticated user'})
@@ -63,6 +66,9 @@ class UserApi(APIView):
 
 
 class FindPost(APIView):
+    """
+    API для нахождения оригинального поста
+    """
     def get(self, request, repost_id):
         repost = Repost.objects.filter(pk=repost_id).first()
         if not repost:
@@ -76,6 +82,9 @@ class FindPost(APIView):
 
 
 class SearchCommunityApi(APIView):
+    """
+    API для поиска сообщества
+    """
     def get(self, request, community_title):
         communties = Community.objects.filter(title__contains=community_title).all()
         ser = CommentsSerializer(communties, many=True)
@@ -83,6 +92,9 @@ class SearchCommunityApi(APIView):
 
 
 class UserCommunityStatus(APIView):
+    """
+    API для взаимодействия пользователя и сообщества. Есть возможность посмотерть связь, добавить, удалить админа, подписчика.
+    """
     def get(self, request, community_pk, user_pk):
         community = Community.objects.filter(pk=community_pk).first()
         if not community:
@@ -141,6 +153,9 @@ class UserCommunityStatus(APIView):
 
 
 class CommunityApi(APIView):
+    """
+    API для создания, получения данных, удаления сообщества
+    """
     def get(self, request, pk):
         community = Community.objects.filter(pk=pk).first()
         if not community:
@@ -165,6 +180,9 @@ class CommunityApi(APIView):
 
 
 class LikeApiView(APIView):
+    """
+    API для лайков. Возможность проверки на наличие лайка, удаления лайка и создания.
+    """
     def get(self, request, unique_parameter):
         like = Likes.objects.filter(unique_parameter=unique_parameter).first()
         if not like:
@@ -193,6 +211,9 @@ class LikeApiView(APIView):
 
 
 class CommentaryAPI(APIView):
+    """
+    API для комментариев. Возможность создания, удаления и получения данных
+    """
     def get(self, request, pk):
         comment = Commentary.objects.filter(pk=pk).first()
         if not comment:
@@ -219,6 +240,9 @@ class CommentaryAPI(APIView):
 
 
 class RepostListAPI(APIView):
+    """
+    API для репостов (часть 1). Получение всех репостов, создание репостов.
+    """
     def get(self, request):
         reposts = Repost.objects.all()
         serializer = RepostSerializer(reposts, many=True)
@@ -237,6 +261,9 @@ class RepostListAPI(APIView):
 
 
 class RepostAPI(APIView):
+    """
+    API для репостов (часть 2). Получение и удаление репоста.
+    """
     def get(self, request, pk):
         repost = Repost.objects.filter(pk=pk).first()
         if not repost:
@@ -253,6 +280,9 @@ class RepostAPI(APIView):
 
 
 class CommentaryListAPI(APIView):
+    """
+    API для комментариев. Получение комментария по id пользователя и id поста.
+    """
     def get(self, request, user_id, post_id):
         comments = Commentary.objects.filter(user=user_id, post=post_id)
         ser = CommentsSerializer(comments, many=True)
@@ -260,8 +290,23 @@ class CommentaryListAPI(APIView):
 
 
 class NewsAPI(APIView):
+    """
+    API для новостей. Удаление новостей
+    """
     def delete(self, request, news_id):
         news = News.objects.filter(id=news_id).first()
+        if not news:
+            return Response({"Error": "The object does not exist"})
+        news.delete()
+        return Response({"Success": "OK"})
+
+
+class CommunityPostAPI(APIView):
+    """
+    API для новостей сообщества. Удаление новостей
+    """
+    def delete(self, request, news_id):
+        news = CommunityPost.objects.filter(id=news_id).first()
         if not news:
             return Response({"Error": "The object does not exist"})
         news.delete()
@@ -290,6 +335,9 @@ def repost_origin(request, repost_id):
 
 
 class SearchUserAPI(APIView):
+    """
+    API поиска пользователя
+    """
     def get(self, request, request_api):
         name = request_api.split('~')
         if len(name) > 2:
@@ -310,6 +358,9 @@ class SearchUserAPI(APIView):
 
 
 class UsersRelationship(APIView):
+    """
+    API - проверки статуса между пользователями
+    """
     def get(self, request, user1_id, user2_id):
         user1 = User.objects.filter(pk=user1_id).first()
         user2 = User.objects.filter(pk=user2_id).first()
@@ -327,6 +378,9 @@ class UsersRelationship(APIView):
 
 
 class FriendsAPI(APIView):
+    """
+    API для дружбы. Создание, получение данных и удаление
+    """
     def get(self, request, user_id):
         user = User.objects.filter(pk=user_id).first()
         if not user:
@@ -371,6 +425,9 @@ class FriendsAPI(APIView):
 
 
 class FriendsRequestAPI(APIView):
+    """
+    API для запросов в друзья. Получение данных, создание, удаление
+    """
     def get(self, request, user1_id, user2_id):
         """
         status:
@@ -435,6 +492,9 @@ class StatusAPI(APIView):
 
 
 class SubscriberAPI(APIView):
+    """
+    API для подписчиков. Получение данных, создание, удаление
+    """
     def get(self, request, user1_id, user2_id):
         """
         status:
@@ -488,6 +548,9 @@ class SubscriberAPI(APIView):
 
 
 class ChatsAPI(APIView):
+    """
+    API чатов. Создание, получение данных
+    """
     def get(self, request, uid1, uid2):
         for chat in Chat.objects.all():
             if uid1 in map(lambda x: x.id, chat.members.all()) and uid2 in map(lambda x: x.id,

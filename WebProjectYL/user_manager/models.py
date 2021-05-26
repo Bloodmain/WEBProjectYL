@@ -13,6 +13,10 @@ def community_avatar_directory(instance, filename):
     return f"community/{instance.id}/avatar.jpg"
 
 
+def community_post_directory(instance, filename):
+    return f"community_post/{instance.news.id}/files/{filename}"
+
+
 def avatars_directory(instance, filename):
     return f"users/{instance.user.id}/avatar.jpg"
 
@@ -22,6 +26,9 @@ def news_files_directory(instance, filename):
 
 
 class Profile(models.Model):
+    """
+    Модель Profile является оберткой для модели User, встроенной в Django по умолчанию
+    """
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     name = models.CharField(max_length=50, verbose_name="Имя", null=True, blank=False)
     surname = models.CharField(max_length=75, verbose_name="Фамилия", null=True, blank=False)
@@ -37,12 +44,21 @@ class Profile(models.Model):
                                 blank=False)
 
     def get_our_news(self):
+        """
+        Возвращает список наших новостей
+        """
         return self.user.news.all()
 
     def get_our_reposts(self):
+        """
+        Возвращает список наших репостов
+        """
         return self.user.repost.all()
 
     def get_news_interesting_for_user(self):
+        """
+        Формирует интересные новости для пользователя
+        """
         news = []
         for friend in self.get_friends():
             for post in friend.profile.get_our_reposts():
@@ -126,6 +142,9 @@ class Profile(models.Model):
 
 
 class Community(models.Model):
+    """
+    Модель для сообществ. Содержит название, описание, создателя, аватарку, админов и участников
+    """
     creator = models.ForeignKey(User, related_name="communities_creator", on_delete=models.CASCADE)
     title = models.CharField(max_length=75, verbose_name="Название сообщества", null=True, blank=False)
     describe = models.TextField(max_length=1000, verbose_name="Описание сообщества", null=True, blank=False)
@@ -149,6 +168,9 @@ class Community(models.Model):
 
 
 class Chat(models.Model):
+    """
+    Модель чата. Содержит тип и участников чата.
+    """
     CHAT = 'C'
     DIALOG = 'D'
     TYPES = (
@@ -164,6 +186,9 @@ class Chat(models.Model):
 
 
 class Message(models.Model):
+    """
+    Модель сообщения. Содержит автор, чат, текст а так же дату отправки сообщения
+    """
     text = models.CharField(max_length=1000, verbose_name='Текст сообщения', default="")
     author = models.ForeignKey(User, verbose_name="Автор", related_name="message",
                                on_delete=models.CASCADE)
@@ -180,6 +205,9 @@ class Message(models.Model):
 
 
 class FriendRequest(models.Model):
+    """
+    Модель запроса в друзьях. В описание поле написано кто что делает
+    """
     requester = models.ForeignKey(User, on_delete=models.CASCADE,
                                   verbose_name="тот кто отправляет запрос",
                                   related_name="our_requests")
@@ -193,6 +221,9 @@ class FriendRequest(models.Model):
 
 
 class FriendShip(models.Model):
+    """
+    Модель дружбы. В описание поле написано кто что делает
+    """
     creator = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Первый друг",
                                 related_name="creator")
     friend = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Второй друг",
@@ -205,6 +236,9 @@ class FriendShip(models.Model):
 
 
 class SubscriberShip(models.Model):
+    """
+    Модель подписки. В описание поле написано кто что делает
+    """
     subscriber = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Подписчик",
                                    related_name='subscriber')
     author = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="На кого подписан",
@@ -217,6 +251,9 @@ class SubscriberShip(models.Model):
 
 
 class News(models.Model):
+    """
+    Модель новости содержит автора, текс, количество лайков и дату создания
+    """
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='news')
     text_content = models.TextField(max_length=1000, verbose_name='Контент', blank=False)
     likes = models.IntegerField(default=0, verbose_name='Лайки')
@@ -228,6 +265,9 @@ class News(models.Model):
 
 
 class NewsFile(models.Model):
+    """
+    Файлы прикрепленные к новости
+    """
     news = models.ForeignKey(News, on_delete=models.CASCADE, related_name='files')
     file = models.FileField(null=True, blank=True, upload_to=news_files_directory)
 
@@ -237,6 +277,9 @@ class NewsFile(models.Model):
 
 
 class Repost(models.Model):
+    """
+    Репост содержит. Пост репост которого сделан и пользователя сделавшего репост.
+    """
     posts = models.ForeignKey("Posts", on_delete=models.CASCADE, related_name='repost')
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='repost')
     create_date = models.DateTimeField(verbose_name='дата создания', default=datetime.datetime.now)
@@ -247,6 +290,9 @@ class Repost(models.Model):
 
 
 class CommunityPost(models.Model):
+    """
+    Новости сообщества. См модель News
+    """
     community = models.ForeignKey(Community, on_delete=models.CASCADE, related_name="news")
     text_content = models.TextField(max_length=1000, verbose_name='Контент', blank=False)
     likes = models.IntegerField(default=0, verbose_name='Лайки')
@@ -257,7 +303,22 @@ class CommunityPost(models.Model):
         verbose_name_plural = "Новости сообществ"
 
 
+class CommunityPostFiles(models.Model):
+    """
+    Файлы прикрепленные к новости сообщества
+    """
+    c_post = models.ForeignKey(CommunityPost, on_delete=models.CASCADE, related_name='files')
+    file = models.FileField(null=True, blank=True, upload_to=community_post_directory)
+
+    class Meta:
+        verbose_name = "Файл новости"
+        verbose_name_plural = "Файлы новостей"
+
+
 class Posts(models.Model):
+    """
+    Модель обобщающая news, reposts, community_news
+    """
     news = models.OneToOneField(News, on_delete=models.CASCADE, null=True, blank=True,
                                 related_name='post')
     reposts = models.OneToOneField(Repost, on_delete=models.CASCADE, null=True, blank=True,
@@ -275,6 +336,10 @@ class Posts(models.Model):
 
 
 class Likes(models.Model):
+    """
+    Модель лайка. Содержит пользователя и пост.
+    Уникальный параметр нужен чтобы отличать пользователь не мог поставить лайк к одной и той же записи
+    """
     user = models.ForeignKey(User, related_name='likes', on_delete=models.CASCADE)
     post = models.ForeignKey(Posts, related_name='likes', on_delete=models.CASCADE)
     unique_parameter = models.CharField(max_length=50, verbose_name='Уникальный параметр',
@@ -287,6 +352,9 @@ class Likes(models.Model):
 
 
 class Commentary(models.Model):
+    """
+    Модель комментария. Содержит пользователя, пост и текст, а так же дату создания.
+    """
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comment')
     post = models.ForeignKey(Posts, on_delete=models.CASCADE, related_name='comment')
     text = models.TextField(max_length=1000, null=False, blank=False, default="")

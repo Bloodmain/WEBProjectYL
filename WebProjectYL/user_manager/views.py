@@ -777,6 +777,8 @@ def register(request):
             user.profile.birth_date = profile_form.cleaned_data['birth_date']
             user.profile.lname = user_form.cleaned_data['first_name'].lower()
             user.profile.lsurname = user_form.cleaned_data['last_name'].lower()
+            if not user.profile.avatar:
+                user.profile.avatar = 'none'
             user.profile.save()
 
             messages.success(request, 'Успешная регистрация!')

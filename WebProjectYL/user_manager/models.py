@@ -14,7 +14,7 @@ def community_avatar_directory(instance, filename):
 
 
 def community_post_directory(instance, filename):
-    return f"community_post/{instance.news.id}/files/{filename}"
+    return f"community_post/{instance.c_post.id}/files/{filename}"
 
 
 def avatars_directory(instance, filename):
@@ -77,6 +77,9 @@ class Profile(models.Model):
                 news.append(post)
         for post in self.get_our_news():
             news.append(post)
+        for com in self.get_communities():
+            for post in com.news.all():
+                news.append(post)
         return sorted(news, key=lambda x: x.create_date, reverse=True)
 
     def get_friends_request(self):
@@ -99,6 +102,12 @@ class Profile(models.Model):
     def get_authors(self):
         """Возвращает всех на кого мы подписаны"""
         return [subscriber_ship.author for subscriber_ship in self.user.subscriber.all()]
+
+    def get_communities(self):
+        """Возвращает все сообщества, в которых мы состоим"""
+        return list(
+            set(self.user.communities_creator.all()) | set(self.user.communities_admin.all()) | set(
+                self.user.communities.all()))
 
     def is_friends(self, other):
         """
@@ -146,11 +155,15 @@ class Community(models.Model):
     Модель для сообществ. Содержит название, описание, создателя, аватарку, админов и участников
     """
     creator = models.ForeignKey(User, related_name="communities_creator", on_delete=models.CASCADE)
-    title = models.CharField(max_length=75, verbose_name="Название сообщества", null=True, blank=False)
-    describe = models.TextField(max_length=1000, verbose_name="Описание сообщества", null=True, blank=False)
+    title = models.CharField(max_length=75, verbose_name="Название сообщества", null=True,
+                             blank=False)
+    describe = models.TextField(max_length=1000, verbose_name="Описание сообщества", null=True,
+                                blank=False)
     avatar = models.FileField(null=True, blank=True, upload_to=community_avatar_directory)
-    admins = models.ManyToManyField(User, related_name="communities_admin", verbose_name="Админы", null=True, blank=True)
-    members = models.ManyToManyField(User, related_name="communities", verbose_name="Подписчики", null=True, blank=True)
+    admins = models.ManyToManyField(User, related_name="communities_admin", verbose_name="Админы",
+                                    null=True, blank=True)
+    members = models.ManyToManyField(User, related_name="communities", verbose_name="Подписчики",
+                                     null=True, blank=True)
 
     def get_user_status(self, user):
         if user == self.creator:
@@ -323,7 +336,8 @@ class Posts(models.Model):
                                 related_name='post')
     reposts = models.OneToOneField(Repost, on_delete=models.CASCADE, null=True, blank=True,
                                    related_name='post')
-    community_news = models.OneToOneField(CommunityPost, on_delete=models.CASCADE, null=True, blank=True,
+    community_news = models.OneToOneField(CommunityPost, on_delete=models.CASCADE, null=True,
+                                          blank=True,
                                           related_name="post")
 
     class Meta:
@@ -369,13 +383,13 @@ class Commentary(models.Model):
 
 
 @receiver(post_save, sender=CommunityPost)
-def create_post_on_news(sender, instance, created, **kwargs):
+def create_post_on_сnews(sender, instance, created, **kwargs):
     if created:
         Posts.objects.create(community_news=instance)
 
 
 @receiver(post_save, sender=CommunityPost)
-def save_post_on_news(sender, instance, **kwargs):
+def save_post_on_сnews(sender, instance, **kwargs):
     instance.post.save()
 
 

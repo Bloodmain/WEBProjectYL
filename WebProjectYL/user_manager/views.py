@@ -2,7 +2,7 @@ from django.contrib import messages
 from django.contrib.auth import login, logout
 from django.contrib.auth.models import User
 from django.db.models import Q
-from .forms import UserLoginForm, UserForm, ProfileForm, NewsForm
+from .forms import UserLoginForm, UserForm, ProfileForm, NewsForm, GroupForm
 from django.shortcuts import render, redirect
 from .models import NewsFile, News, Likes, Commentary, Repost, Posts, Profile, FriendShip, \
     FriendRequest, SubscriberShip, Message, Chat, Community, CommunityPostFiles, CommunityPost
@@ -29,9 +29,12 @@ def get_news_data(all_news):
         if tp == 0:
             reposted = news
             news = news.posts
-            while news.news is None:
+            while news.news is None and news.community_news is None:
                 news = news.reposts.posts
-            news = news.news
+            if news.news is None:
+                news = news.community_news
+            else:
+                news = news.news
             all_news[i][0].text_content = news.text_content
             all_news[i][0].files = news.files
         to_add = []
@@ -57,6 +60,7 @@ class UserApi(APIView):
     """
     API для профиля пользователя. Возращает всю информацию о нем.
     """
+
     def get(self, request):
         if not request.user.is_authenticated:
             return Response({'Error': 'Unauthenticated user'})
@@ -69,6 +73,7 @@ class FindPost(APIView):
     """
     API для нахождения оригинального поста
     """
+
     def get(self, request, repost_id):
         repost = Repost.objects.filter(pk=repost_id).first()
         if not repost:
@@ -85,6 +90,7 @@ class SearchCommunityApi(APIView):
     """
     API для поиска сообщества
     """
+
     def get(self, request, community_title):
         communties = Community.objects.filter(title__contains=community_title).all()
         ser = CommentsSerializer(communties, many=True)
@@ -95,6 +101,7 @@ class UserCommunityStatus(APIView):
     """
     API для взаимодействия пользователя и сообщества. Есть возможность посмотерть связь, добавить, удалить админа, подписчика.
     """
+
     def get(self, request, community_pk, user_pk):
         community = Community.objects.filter(pk=community_pk).first()
         if not community:
@@ -129,7 +136,6 @@ class UserCommunityStatus(APIView):
         if status == 2:
             community.admins.add(user)
         elif status == 3:
-            print(status)
             community.members.add(user)
         else:
             return Response({"Error": "Status error"})
@@ -146,7 +152,7 @@ class UserCommunityStatus(APIView):
             community.admins.remove(user)
             return Response({"Success": "OK"})
         elif status == 3 and community.get_user_status(user) == 3:
-            community.admins.remove(user)
+            community.members.remove(user)
             return Response({"Success": "OK"})
         else:
             return Response({"Error": "Status error"})
@@ -156,6 +162,7 @@ class CommunityApi(APIView):
     """
     API для создания, получения данных, удаления сообщества
     """
+
     def get(self, request, pk):
         community = Community.objects.filter(pk=pk).first()
         if not community:
@@ -183,6 +190,7 @@ class LikeApiView(APIView):
     """
     API для лайков. Возможность проверки на наличие лайка, удаления лайка и создания.
     """
+
     def get(self, request, unique_parameter):
         like = Likes.objects.filter(unique_parameter=unique_parameter).first()
         if not like:
@@ -214,6 +222,7 @@ class CommentaryAPI(APIView):
     """
     API для комментариев. Возможность создания, удаления и получения данных
     """
+
     def get(self, request, pk):
         comment = Commentary.objects.filter(pk=pk).first()
         if not comment:
@@ -243,6 +252,7 @@ class RepostListAPI(APIView):
     """
     API для репостов (часть 1). Получение всех репостов, создание репостов.
     """
+
     def get(self, request):
         reposts = Repost.objects.all()
         serializer = RepostSerializer(reposts, many=True)
@@ -264,6 +274,7 @@ class RepostAPI(APIView):
     """
     API для репостов (часть 2). Получение и удаление репоста.
     """
+
     def get(self, request, pk):
         repost = Repost.objects.filter(pk=pk).first()
         if not repost:
@@ -283,6 +294,7 @@ class CommentaryListAPI(APIView):
     """
     API для комментариев. Получение комментария по id пользователя и id поста.
     """
+
     def get(self, request, user_id, post_id):
         comments = Commentary.objects.filter(user=user_id, post=post_id)
         ser = CommentsSerializer(comments, many=True)
@@ -293,6 +305,7 @@ class NewsAPI(APIView):
     """
     API для новостей. Удаление новостей
     """
+
     def delete(self, request, news_id):
         news = News.objects.filter(id=news_id).first()
         if not news:
@@ -305,6 +318,7 @@ class CommunityPostAPI(APIView):
     """
     API для новостей сообщества. Удаление новостей
     """
+
     def delete(self, request, news_id):
         news = CommunityPost.objects.filter(id=news_id).first()
         if not news:
@@ -315,17 +329,19 @@ class CommunityPostAPI(APIView):
 
 def show_post(request, post_id):
     post = Posts.objects.filter(pk=post_id).first()
-    if post.news is None:
+    if post.news is None and post.community_news is None:
         post = [(post.reposts, 0)]
-    else:
+    elif post.community_news is None:
         post = [(post.news, 1)]
+    else:
+        post = [(post.community_news, 1)]
     images, width, comments = get_news_data(post)
     return render(request, 'one_post.html',
                   {'news': post[0][0],
                    'images': images[0],
                    'width': width[0],
                    'comments': comments[0],
-                   'tp': isinstance(post[0][0], News),
+                   'tp': isinstance(post[0][0], News) or isinstance(post[0][0], CommunityPost),
                    'title': 'Новость'})
 
 
@@ -338,6 +354,7 @@ class SearchUserAPI(APIView):
     """
     API поиска пользователя
     """
+
     def get(self, request, request_api):
         name = request_api.split('~')
         if len(name) > 2:
@@ -361,6 +378,7 @@ class UsersRelationship(APIView):
     """
     API - проверки статуса между пользователями
     """
+
     def get(self, request, user1_id, user2_id):
         user1 = User.objects.filter(pk=user1_id).first()
         user2 = User.objects.filter(pk=user2_id).first()
@@ -381,6 +399,7 @@ class FriendsAPI(APIView):
     """
     API для дружбы. Создание, получение данных и удаление
     """
+
     def get(self, request, user_id):
         user = User.objects.filter(pk=user_id).first()
         if not user:
@@ -428,6 +447,7 @@ class FriendsRequestAPI(APIView):
     """
     API для запросов в друзья. Получение данных, создание, удаление
     """
+
     def get(self, request, user1_id, user2_id):
         """
         status:
@@ -495,6 +515,7 @@ class SubscriberAPI(APIView):
     """
     API для подписчиков. Получение данных, создание, удаление
     """
+
     def get(self, request, user1_id, user2_id):
         """
         status:
@@ -551,6 +572,7 @@ class ChatsAPI(APIView):
     """
     API чатов. Создание, получение данных
     """
+
     def get(self, request, uid1, uid2):
         for chat in Chat.objects.all():
             if uid1 in map(lambda x: x.id, chat.members.all()) and uid2 in map(lambda x: x.id,
@@ -584,7 +606,7 @@ def news_form(request):
         form = NewsForm()
 
     if request.user.is_authenticated:
-        all_news = [(news, isinstance(news, News))
+        all_news = [(news, isinstance(news, News) or isinstance(news, CommunityPost))
                     for news in request.user.profile.get_news_interesting_for_user()]
     else:
         all_news = [(x, 1)
@@ -639,6 +661,39 @@ def find_user(request):
                    'req': r})
 
 
+def show_members(request, group_id):
+    group = Community.objects.filter(pk=group_id).first()
+    all_users = group.members.all()
+    all_members = Profile.objects.filter(user__in=all_users)
+    r = request.GET.get('request', '')
+    req = r.lower().split(maxsplit=1)
+    if len(req) == 1:
+        name = req[0].replace('_', ' ')
+        users_1 = all_members.filter(lname__icontains=name)
+        users_2 = all_members.filter(lsurname__icontains=name)
+        all_members = users_1 | users_2
+    elif len(req) == 2:
+        name, surname = req[0].replace('_', ' '), req[1].replace('_', ' ')
+        users_1 = all_members.filter(lname__icontains=name, lsurname__icontains=surname)
+        users_2 = all_members.filter(lsurname__icontains=name, lname__icontains=surname)
+        all_members = users_1 | users_2
+
+    members = [(member, UserCommunityStatus().get(request, group_id, member.user.id).data['Status'])
+               for member in all_members.all()]
+    if request.user.is_authenticated:
+        creator_permissions = UserCommunityStatus().get(request, group_id, request.user.id).data[
+                                  'Status'] == 1
+    else:
+        creator_permissions = False
+
+    return render(request, 'show_members.html',
+                  {'req': r,
+                   'title': 'Участники',
+                   'members': members,
+                   'creator_perm': creator_permissions,
+                   'group': group_id})
+
+
 def chats(request):
     all_chats = request.user.chats.all()
     return render(request, 'messages.html',
@@ -656,9 +711,37 @@ def show_chat(request, chat_id):
                    'chat_to_show': chat})
 
 
-def show_groups(request, group_id):
+def show_group(request, group_id):
+    community = Community.objects.filter(pk=group_id).first()
+    if request.method == 'POST':
+        form = NewsForm(request.POST, request.FILES)
+        if form.is_valid():
+            c_post = CommunityPost.objects.create(community=community,
+                                                  text_content=form.cleaned_data['text_content'])
+            for file in request.FILES.getlist('attachments'):
+                CommunityPostFiles.objects.create(file=file, c_post=c_post)
+            c_post.save()
+            return redirect(f'/groups/{group_id}')
+    else:
+        form = NewsForm()
+
+    if request.user.is_authenticated:
+        status = UserCommunityStatus().get(request, group_id, request.user.id).data['Status']
+    else:
+        status = -1
+    all_news = [(x, True)
+                for x in sorted(CommunityPost.objects.filter(community=group_id).all(),
+                                key=lambda x: x.create_date, reverse=True)]
+    images, width, comments = get_news_data(all_news)
     return render(request, 'groups.html',
-                  {'title': 'Сообщества'})
+                  {'title': community.title,
+                   'group': community,
+                   'status': status,
+                   'all_news': all_news,
+                   'images': images,
+                   'widths': width,
+                   'comments': comments,
+                   'form': form})
 
 
 class LoginView(FormView):
@@ -710,6 +793,24 @@ def register(request):
     })
 
 
+def create_group(request):
+    if request.method == 'POST':
+        group_form = GroupForm(request.POST, request.FILES)
+        if group_form.is_valid():
+            group = group_form.save(commit=False)
+            group.creator = request.user
+            if not group.avatar:
+                group.avatar = 'none'
+            group.save()
+            return redirect(f'/groups/{group.id}')
+    else:
+        group_form = GroupForm()
+
+    return render(request, 'create_group.html',
+                  {'title': 'Создание группы',
+                   'form': group_form})
+
+
 def access_denied(request):
     return render(request, 'access_denied.html', {'title': 'Доступ запрещен'})
 
@@ -720,7 +821,7 @@ def homepage(request, user_id):
         is_friends = request.user.profile.is_friends(user)
     else:
         is_friends = 6
-    all_news = [(x, isinstance(x, News))
+    all_news = [(x, isinstance(x, News) or isinstance(x, CommunityPost))
                 for x in sorted(list(user.news.all()) + list(user.repost.all()),
                                 key=lambda x: x.create_date, reverse=True)]
     images, width, comments = get_news_data(all_news)
@@ -732,3 +833,26 @@ def homepage(request, user_id):
         'all_news': all_news,
         'comments': comments,
         'title': 'Страница пользователя'})
+
+
+def users_groups(request, user_id):
+    user = User.objects.get(pk=user_id)
+    req = request.GET.get('request', '').lower()
+    user_communities = []
+    other_comms = []
+    for com in Community.objects.all():
+        if req not in com.title.lower():
+            continue
+        if user in com.members.all() or user == com.creator:
+            user_communities.append(com)
+        else:
+            other_comms.append(com)
+
+    return render(request, 'user_groups.html',
+                  {
+                      'title': 'Сообщества',
+                      'req': req,
+                      'ucoms': user_communities,
+                      'ocoms': other_comms,
+                      'uid': user_id
+                  })

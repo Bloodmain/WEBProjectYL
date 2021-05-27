@@ -1,0 +1,20 @@
+.member_status {
+    font-size: 12px;
+    color: #c4c4c4;
+    border: 1px solid #c4c4c4;
+    border-radius: 7px;
+}
+
+.status-lbl {
+    font-family: "Segoe Print";
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.delete-member {
+    color: #88160b;
+}
+
+.delete-member:hover {
+    color: #ff240c;
+}

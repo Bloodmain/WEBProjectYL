@@ -40,10 +40,14 @@ urlpatterns = [
     path('messages/<int:chat_id>', views.show_chat),
     path('api/chats/<int:uid1>/<int:uid2>', views.ChatsAPI.as_view()),
     path('api/status', views.StatusAPI.as_view()),
-    path('groups/<int:group_id>', views.show_groups),
+    path('groups/<int:group_id>', views.show_group),
     path('api/community/<int:pk>', views.CommunityApi.as_view()),
     path('api/community', views.CommunityApi.as_view()),
     path('api/user_community/<int:community_pk>/<int:user_pk>', views.UserCommunityStatus.as_view()),
     path('api/user_community/<int:community_pk>/<int:user_pk>/<int:status>', views.UserCommunityStatus.as_view()),
-    path('api/user_community', views.UserCommunityStatus.as_view())
+    path('api/user_community', views.UserCommunityStatus.as_view()),
+    path('show_members/<int:group_id>/', views.show_members),
+    path('api/community_post/<int:news_id>', views.CommunityPostAPI.as_view()),
+    path('user_groups/<int:user_id>/', views.users_groups),
+    path('create_group/', views.create_group)
 ]

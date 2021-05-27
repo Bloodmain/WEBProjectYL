@@ -1,6 +1,6 @@
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User
-from .models import Profile, News
+from .models import Profile, News, Community
 import datetime as dt
 
 from django import forms
@@ -86,4 +86,22 @@ class NewsForm(forms.ModelForm):
     attachments = forms.FileField(
         widget=forms.ClearableFileInput(
             attrs={'multiple': True, 'class': 'news_files'}),
+        label='', required=False)
+
+
+class GroupForm(forms.ModelForm):
+    class Meta:
+        model = Community
+        fields = ('title', 'describe', 'avatar')
+
+    title = forms.CharField(widget=forms.TextInput(
+        attrs={'class': 'form-control', 'placeholder': 'Название', 'id': 'title'}),
+        label='', required=True)
+
+    describe = forms.CharField(widget=forms.Textarea(
+        attrs={'class': 'form-control', 'placeholder': 'Описание', 'id': 'description'}),
+        label='', required=False)
+
+    avatar = forms.ImageField(widget=forms.FileInput(
+        attrs={'class': 'form-control avatar', 'placeholder': ''}),
         label='', required=False)

@@ -85,7 +85,7 @@
                 <br>
                 <div class="owner-urls">
                     <a class="owner_friends" href="/friends/{{ page_owner.id }}">Друзья</a><br><br>
-                    <a class="owner_groups" href="/groups/{{ page_owner.id }}">Сообщества</a><br>
+                    <a class="owner_groups" href="/user_groups/{{ page_owner.id }}">Сообщества</a><br>
                 </div>
             </td>
 
@@ -121,7 +121,7 @@
                                 <br>
                                 {% if news.user == user %}
                                     {% if tp == 1 %}
-                                        <btn class="delete-news {{ news.id }} {{ news.post.id }}"
+                                        <btn class="delete-news {{ news.id }} {{ news.post.id }} {{ news.community }}"
                                              title="Удалить запись">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="26"
                                                  height="26"
@@ -131,7 +131,7 @@
                                             </svg>
                                         </btn>
                                     {% else %}
-                                        <btn class="delete-repost {{ news.id }} {{ news.post.id }}"
+                                        <btn class="delete-repost {{ news.id }} {{ news.post.id }} {{ news.community }}"
                                              title="Удалить запись">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="26"
                                                  height="26"

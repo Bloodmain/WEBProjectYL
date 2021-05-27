@@ -8,11 +8,19 @@
     {% load file_name %}
 
     <div class="news {{ news.post.id }}">
-        <a href="/homepage/{{ news.user.id }}" class="author_url">
-            <img src="{{ news.user.profile.avatar.url }}" alt="Аватарка"
-                 class="news_avatar">
-            <span class="creator_name">{{ news.user.profile.name }} {{ news.user.profile.surname }}</span>
-        </a>
+        {% if news.user %}
+            <a href="/homepage/{{ news.user.id }}" class="author_url">
+                <img src="{{ news.user.profile.avatar.url }}" alt="Аватарка"
+                     class="news_avatar">
+                <span class="creator_name">{{ news.user.profile.name }} {{ news.user.profile.surname }}</span>
+            </a>
+        {% else %}
+            <a href="/groups/{{ news.community.id }}" class="author_url">
+                <img src="{{ news.community.avatar.url }}" alt="Аватарка"
+                     class="news_avatar">
+                <span class="creator_name">{{ news.community.title }}</span>
+            </a>
+        {% endif %}
         {% if tp == 0 %}
             <a class="repost-sign" title="Нажмите для просмотра оригинальной записи"
                href="/origin/{{ news.id }}">
@@ -21,16 +29,16 @@
         {% endif %}
         <span class="created_date">{{ news.create_date }}</span>
         <br>
-        {% if news.user == user %}
+        {% if news.user == user or user in news.community.admins.all or user == news.community.creator %}
             {% if tp == 1 %}
-                <btn class="delete-news {{ news.id }} {{ news.post.id }}" title="Удалить запись">
+                <btn class="delete-news {{ news.id }} {{ news.post.id }} {{ news.community.id }} to-origin" title="Удалить запись">
                     <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26"
                          fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
                         <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
                     </svg>
                 </btn>
             {% else %}
-                <btn class="delete-repost {{ news.id }} {{ news.post.id }}" title="Удалить запись">
+                <btn class="delete-repost {{ news.id }} {{ news.post.id }} {{ news.community.id }} to-origin" title="Удалить запись">
                     <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26"
                          fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
                         <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>

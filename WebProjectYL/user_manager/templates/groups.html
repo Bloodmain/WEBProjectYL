@@ -1,4 +1,210 @@
 {% extends "main.html" %}
 {% block content %}
     {% load static %}
+    {% csrf_token %}
+    <link href="{% static 'css/group.css' %}" rel="stylesheet">
+
+    <p class="group_title">{{ group.title }}</p>
+
+    <table class="group_header">
+        <tr>
+            <td class="t1">
+                <img src="{{ group.creator.profile.avatar.url }}" alt="Аватарка"
+                     class="group_avatar">
+            </td>
+            <td class="t2">
+                <a href="/homepage/{{ group.creator.id }}" class="author_url">
+                    <span class="creator_name">{{ group.creator.profile.name }} {{ group.creator.profile.surname }}</span>
+                </a>
+                <br>
+                <span class="creator_status">Создатель</span>
+            </td>
+            <td class="t3">
+                <img src="{{ group.avatar.url }}" alt="Аватарка"
+                     class="group_avatar">
+            </td>
+            <td class="t4">
+                <span class="members_counter">{{ group.members.all|length }}</span><span> участников</span>
+                <br>
+                <a href="/show_members/{{ group.id }}" class="show_members author_url creator_name">Участники</a>
+            </td>
+        </tr>
+    </table>
+    <p class="description">{{ group.describe }}</p>
+    <div class="status-info">
+        {% if status == 0 %}
+            <span class="status-text">Вы не состоите в этой группе</span><br>
+            <span class="join-btn author_url creator_name {{ group.id }} {{ user.id }}">Вступить</span>
+        {% elif status == 1 %}
+            <span class="status-text">Вы являетесь создателем этой группы</span><br>
+            <span class="del-btn author_url creator_name {{ group.id }} {{ user.id }}">Удалить группу</span>
+        {% elif status == 2 %}
+            <span class="status-text">Вы являетесь администратором этой группы</span><br>
+            <span class="leave-btn author_url creator_name {{ group.id }} {{ user.id }}">Покинуть группу</span>
+        {% elif status == 3 %}
+            <span class="status-text">Вы являетесь участником этой группы</span><br>
+            <span class="leave-btn author_url creator_name {{ group.id }} {{ user.id }}">Покинуть группу</span>
+        {% endif %}
+    </div>
+    <br><br>
+    {% if status == 1 or status == 2 %}
+        <form class="login-form" action="" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form }}
+            <button type="submit" class="news_creation btn btn-primary">Создать</button>
+        </form>
+        <br>
+    {% endif %}
+
+    {% load index %}
+    {% load file_name %}
+    {% if all_news %}
+        {% for news, tp in all_news %}
+
+            <div class="news {{ news.post.id }}">
+                <a href="/groups/{{ group.id }}" class="author_url">
+                    <img src="{{ group.avatar.url }}" alt="Аватарка"
+                         class="news_avatar">
+                    <span class="creator_name">{{ group.title }}</span>
+                </a>
+                {% if tp == 0 %}
+                    <a class="repost-sign" title="Нажмите для просмотра оригинальной записи"
+                       href="/origin/{{ news.id }}">
+                        Репост
+                    </a>
+                {% endif %}
+
+                <span class="created_date">{{ news.create_date }}</span>
+                <a class="show_post" href="/show_post/{{ news.post.id }}"
+                   title="Нажмите для просмотра записи">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                         fill="currentColor" class="bi bi-arrows-fullscreen" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd"
+                              d="M5.828 10.172a.5.5 0 0 0-.707 0l-4.096 4.096V11.5a.5.5 0 0 0-1 0v3.975a.5.5 0 0 0 .5.5H4.5a.5.5 0 0 0 0-1H1.732l4.096-4.096a.5.5 0 0 0 0-.707zm4.344 0a.5.5 0 0 1 .707 0l4.096 4.096V11.5a.5.5 0 1 1 1 0v3.975a.5.5 0 0 1-.5.5H11.5a.5.5 0 0 1 0-1h2.768l-4.096-4.096a.5.5 0 0 1 0-.707zm0-4.344a.5.5 0 0 0 .707 0l4.096-4.096V4.5a.5.5 0 1 0 1 0V.525a.5.5 0 0 0-.5-.5H11.5a.5.5 0 0 0 0 1h2.768l-4.096 4.096a.5.5 0 0 0 0 .707zm-4.344 0a.5.5 0 0 1-.707 0L1.025 1.732V4.5a.5.5 0 0 1-1 0V.525a.5.5 0 0 1 .5-.5H4.5a.5.5 0 0 1 0 1H1.732l4.096 4.096a.5.5 0 0 1 0 .707z"/>
+                    </svg>
+                </a>
+                <br>
+                {% if user in news.community.admins.all or user == news.community.creator %}
+                    {% if tp == 1 %}
+                        <btn class="delete-news {{ news.id }} {{ news.post.id }} {{ news.community.id }}"
+                             title="Удалить запись">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26"
+                                 fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
+                                <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                            </svg>
+                        </btn>
+                    {% else %}
+                        <btn class="delete-repost {{ news.id }} {{ news.post.id }} {{ news.community.id }}"
+                             title="Удалить запись">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26"
+                                 fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
+                                <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                            </svg>
+                        </btn>
+                    {% endif %}
+                {% endif %}
+
+                <br>
+                <div class="news_content">
+                    {{ news.text_content }}<br><br>
+                    <div class="images">
+                        {% for image in images|index:forloop.counter0 %}
+                            <img class="attach" src="{{ image.file.url }}"
+                                 alt="Прикрепленное изображение"
+                                 style="width: {{ widths|index:forloop.parentloop.counter0 }}%">
+                        {% endfor %}
+                    </div>
+                    <br>
+                    <div class="all-files">
+                        {% for file in news.files.all %}
+                            <a href="{{ file.file.url }}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                     fill="currentColor" class="bi bi-download" viewBox="0 0 16 16">
+                                    <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+                                    <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
+                                </svg>
+                                {{ file.file.url|file_name }}</a>
+                            <br>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                {% if user.is_authenticated %}
+                    <div class="likes">
+                        <img class="repost-img {{ news.post.id }}" alt="Репост"
+                             src="{% static 'img/repost.png' %}">
+                        <img class="like_img {{ news.post.id }}" alt="Сердце"
+                             src="{% static 'img/unliked.png' %}">
+                        <span class="likes_counter-{{ news.post.id }}">{{ news.post.total_likes }}</span>
+                    </div>
+                {% endif %}
+
+                <hr class="line">
+                <div class="comments">
+                    {% if user.is_authenticated %}
+                        <div class="comments-creation input-group mb-3">
+                            <textarea class="form-control comment-input {{ news.post.id }}"
+                                      placeholder="Текст комментария"
+                                      aria-label="Текст комментария"
+                                      aria-describedby="button-addon2"></textarea>
+                            <div class="input-group-append">
+                                <button type="button"
+                                        class="btn btn-outline-secondary send-comment {{ news.post.id }}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20 "
+                                         fill="currentColor" class="bi bi-cursor"
+                                         viewBox="0 0 16 16">
+                                        <path d="M14.082 2.182a.5.5 0 0 1 .103.557L8.528 15.467a.5.5 0 0 1-.917-.007L5.57 10.694.803 8.652a.5.5 0 0 1-.006-.916l12.728-5.657a.5.5 0 0 1 .556.103zM2.25 8.184l3.897 1.67a.5.5 0 0 1 .262.263l1.67 3.897L12.743 3.52 2.25 8.184z"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info comments-creation-denied">Пожалуйста,
+                            зарегистрируйтесь, чтобы оставлять
+                            комментарии.
+                        </div>
+                    {% endif %}
+
+                    {% for comment in comments|index:forloop.counter0 %}
+                        <a href="/homepage/{{ comment.user.id }}" class="author_url">
+                            <img src="{{ comment.user.profile.avatar.url }}" alt="Аватарка"
+                                 class="news_avatar comment-avatar">
+                            <span class="creator_name">{{ comment.user.profile.name }} {{ comment.user.profile.surname }}</span>
+                        </a>
+                        <span class="created_date">{{ comment.create_date }}</span>
+                        <br>
+                        {% if comment.user == user %}
+                            <btn class="delete-comment {{ comment.id }} {{ news.post.id }}"
+                                 title="Удалить комментарий">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26"
+                                     fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
+                                    <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                                </svg>
+                            </btn>
+                        {% endif %}
+
+                        <div class="comment-text">
+                            {{ comment.text }}
+                        </div>
+
+                        <br>
+                    {% endfor %}
+                    <script>
+                        $('.news_avatar').on('error', function () {
+                            this.src = "{% static 'img/standart_avatar.jpg'%}";
+                        })
+                    </script>
+                </div>
+            </div>
+            <br><br>
+        {% endfor %}
+    {% else %}
+        <div class="no-posts">У сообщества ещё нет записей</div>
+    {% endif %}
+
+    <script>
+        $('.group_avatar').on('error', function () {
+            this.src = "{% static 'img/standart_avatar.jpg'%}";
+        })
+    </script>
 {% endblock %}

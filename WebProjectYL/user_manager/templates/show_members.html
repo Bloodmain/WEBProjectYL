@@ -1,0 +1,57 @@
+{% extends "main.html" %}
+{% block content %}
+    {% load static %}
+    {% csrf_token %}
+    <link rel="stylesheet" href="{% static 'css/find_user.css' %}">
+    <link rel="stylesheet" href="{% static 'css/show_members.css' %}">
+    <div class="name-input-div">
+        <input placeholder="Найти..." class="group-name-input {{ group }}" value="{{ req }}">
+    </div>
+    <br>
+    {% if not members %}
+        <div class="not-found">Нет участников</div>
+    {% else %}
+        <div>Найден(-о) {{ members|length }} участник(-а/-ов):</div>
+        <br>
+    {% endif %}
+    {% for u, s in members %}
+        <a href="/homepage/{{ u.user.id }}" class="author_url">
+            <img src="{{ u.avatar.url }}" alt="Аватарка"
+                 class="news_avatar comment-avatar">
+            <span class="creator_name">{{ u.name }} {{ u.surname }}</span>
+        </a>
+        {% if s == 1 %}
+            <span class="member_status">Создатель</span>
+        {% elif s == 2 %}
+            <span class="member_status">Администратор</span>
+        {% elif s == 3 %}
+            <span class="member_status">Участник</span>
+        {% endif %}
+        {% if creator_perm %}
+            {% if s == 2 %}
+                <label class="status-lbl">
+                    <input type="checkbox" class="status-box {{ group }} {{ u.user.id }}" checked>
+                    Администратор
+                </label>
+            {% else %}
+                <label class="status-lbl">
+                    <input type="checkbox" class="status-box {{ group }} {{ u.user.id }}">
+                    Администратор
+                </label>
+            {% endif %}
+            <btn class="delete-member {{ group }} {{ u.user.id }}"
+                 title="Выгнать участника">
+                <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26"
+                     fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
+                    <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                </svg>
+            </btn>
+        {% endif %}
+        <br>
+    {% endfor %}
+    <script>
+        $('.news_avatar').on('error', function () {
+            this.src = "{% static 'img/standart_avatar.jpg'%}";
+        })
+    </script>
+{% endblock %}

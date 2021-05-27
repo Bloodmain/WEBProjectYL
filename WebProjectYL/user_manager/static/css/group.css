@@ -1,0 +1,72 @@
+.group_title {
+    text-align: center;
+    font-size: 24px;
+}
+
+.group_avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 40px;
+    border: 1px solid black;
+}
+
+.creator_status {
+    font-size: 12px;
+    color: #c4c4c4;
+    border: 1px solid #c4c4c4;
+    border-radius: 7px;
+}
+
+.show_members {
+    background: #b2d6e9;
+    border: 1px solid black;
+    border-radius: 7px;
+    text-align: center;
+    width: 50%;
+}
+
+.group_header {
+    width: 100%;
+}
+
+.t1 {
+    width: 7%;
+}
+
+.t2 {
+    width: 30%;
+}
+
+.t3, .t4 {
+    text-align: center;
+}
+
+.status-info {
+    text-align: center;
+}
+
+.status-text {
+    font-family: "Segoe Print";
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.del-btn, .leave-btn, .join-btn {
+    font-family: "Segoe Print";
+    font-size: 16px;
+    background: #ff5a5f;
+    border-radius: 10px;
+    border: 1px solid black;
+}
+
+.join-btn {
+    background: #7bff7e;
+}
+
+.no-posts {
+    text-align: center;
+}
+
+.description {
+    text-align: center;
+}

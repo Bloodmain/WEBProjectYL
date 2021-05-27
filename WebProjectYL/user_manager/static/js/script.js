@@ -160,17 +160,42 @@ $('.delete-news').click(function () {
     if (confirm('Вы действительно хотите удалить эту запись?')) {
         var element = $(this)
         var news_id = element.attr('class').split(' ')[1];
-        $.ajax({
-            type: 'DELETE',
-            url: '/api/news/' + news_id,
-            data: {},
-            dataType: 'json',
-            success: function () {
-                var post_id = element.attr('class').split(' ')[2];
-                remember_offset(post_id);
-                location.reload()
-            }
-        });
+        if (!element.attr('class').split(' ')[3]) {
+            $.ajax({
+                type: 'DELETE',
+                url: '/api/news/' + news_id,
+                data: {},
+                dataType: 'json',
+                success: function () {
+                    var post_id = element.attr('class').split(' ')[2];
+                    console.log(element.attr('class').split(' '))
+                    if (element.attr('class').split(' ')[4])
+                        location.assign('/');
+                    else {
+                        remember_offset(post_id);
+                        location.reload();
+                    }
+                }
+            });
+        } else {
+            console.log(element.attr('class').split(' '))
+            $.ajax({
+                type: 'DELETE',
+                url: '/api/community_post/' + news_id,
+                data: {},
+                dataType: 'json',
+                success: function () {
+                    var post_id = element.attr('class').split(' ')[2];
+                    if (element.attr('class').split(' ')[4])
+                        location.assign('/groups/' + element.attr('class').split(' ')[3]);
+                    else {
+                        remember_offset(post_id);
+                        location.reload();
+                    }
+                }
+            });
+        }
+
     }
 })
 
@@ -306,6 +331,20 @@ $('.name-input').keyup(function (event) {
     }
 })
 
+$('.group-name-input').keyup(function (event) {
+    if (event.keyCode === 13) {
+        request = $(this).val();
+        window.location.assign('/show_members/' + $(this).attr('class').split(' ')[1] + '/?request=' + request);
+    }
+})
+
+$('.group-input').keyup(function (event) {
+    if (event.keyCode === 13) {
+        request = $(this).val();
+        window.location.assign('/user_groups/' + $(this).attr('class').split(' ')[1] + '/?request=' + request);
+    }
+})
+
 $('.write-message').click(function () {
     var element = $(this);
     var uid1 = element.attr('class').split(' ')[1];
@@ -344,4 +383,102 @@ $('.status-input').keyup(function (event) {
 $('.status-input').keypress(function (event) {
     if (event.keyCode === 13 && !event.shiftKey)
         event.preventDefault();
+})
+
+$('.status-box').change(function (event) {
+    var element = $(this);
+    var grid = element.attr('class').split(' ')[1];
+    var uid = element.attr('class').split(' ')[2];
+    if (!$(this).prop("checked")) {
+        $.ajax({
+            type: 'DELETE',
+            url: '/api/user_community/' + grid + '/' + uid + '/' + '2',
+            data: {},
+            dataType: 'json',
+            success: function () {
+                location.reload();
+            }
+        });
+    } else {
+        $.post('/api/user_community', {
+            user_pk: uid,
+            community_pk: grid,
+            status: 2
+        }, function (data) {
+            location.reload()
+        })
+    }
+})
+
+$('.leave-btn').click(function () {
+    if (confirm('Вы действительно хотите покинуть эту группу?')) {
+        var element = $(this);
+        var grid = element.attr('class').split(' ')[3];
+        var uid = element.attr('class').split(' ')[4];
+        $.ajax({
+            type: 'DELETE',
+            url: '/api/user_community/' + grid + '/' + uid + '/' + '2',
+            data: {},
+            dataType: 'json',
+        });
+        $.ajax({
+            type: 'DELETE',
+            url: '/api/user_community/' + grid + '/' + uid + '/' + '3',
+            data: {},
+            dataType: 'json',
+            success: function () {
+                location.reload();
+            }
+        });
+    }
+})
+
+$('.join-btn').click(function () {
+    var element = $(this);
+    var grid = element.attr('class').split(' ')[3];
+    var uid = element.attr('class').split(' ')[4];
+    $.post('/api/user_community', {
+        user_pk: uid,
+        community_pk: grid,
+        status: 3
+    }, function (data) {
+        location.reload()
+    })
+})
+
+$('.del-btn').click(function () {
+    if (confirm('Вы действительно хотите удалить эту группу?')) {
+        $.ajax({
+            type: 'DELETE',
+            url: '/api/community/' + $(this).attr('class').split(' ')[3],
+            data: {},
+            dataType: 'json',
+            success: function () {
+                location.assign('/');
+            }
+        });
+    }
+})
+
+$('.delete-member').click(function () {
+    if (confirm('Вы действительно хотите выгнать этого участника?')) {
+        var element = $(this);
+        var grid = element.attr('class').split(' ')[1];
+        var uid = element.attr('class').split(' ')[2];
+        $.ajax({
+            type: 'DELETE',
+            url: '/api/user_community/' + grid + '/' + uid + '/' + '2',
+            data: {},
+            dataType: 'json',
+        });
+        $.ajax({
+            type: 'DELETE',
+            url: '/api/user_community/' + grid + '/' + uid + '/' + '3',
+            data: {},
+            dataType: 'json',
+            success: function () {
+                location.reload();
+            }
+        });
+    }
 })

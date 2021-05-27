@@ -42,7 +42,7 @@
         {% if user.is_authenticated %}
             <a href="/friends/{{ user.id }}" class="menu_a">Друзья</a><br>
             <a href="/find_user" class="menu_a">Найти</a><br>
-            <a href="/groups/{{ user.id }}" class="menu_a">Сообщества</a>
+            <a href="/user_groups/{{ user.id }}" class="menu_a">Сообщества</a>
         {% else %}
             <a href="/access_denied/" class="menu_a">Друзья</a><br>
             <a href="/find_user" class="menu_a">Найти</a><br>
@@ -88,11 +88,19 @@
         {% for news, tp in all_news %}
 
             <div class="news {{ news.post.id }}">
-                <a href="/homepage/{{ news.user.id }}" class="author_url">
-                    <img src="{{ news.user.profile.avatar.url }}" alt="Аватарка"
-                         class="news_avatar">
-                    <span class="creator_name">{{ news.user.profile.name }} {{ news.user.profile.surname }}</span>
-                </a>
+                {% if news.user %}
+                    <a href="/homepage/{{ news.user.id }}" class="author_url">
+                        <img src="{{ news.user.profile.avatar.url }}" alt="Аватарка"
+                             class="news_avatar">
+                        <span class="creator_name">{{ news.user.profile.name }} {{ news.user.profile.surname }}</span>
+                    </a>
+                {% else %}
+                    <a href="/groups/{{ news.community.id }}" class="author_url">
+                        <img src="{{ news.community.avatar.url }}" alt="Аватарка"
+                             class="news_avatar">
+                        <span class="creator_name">{{ news.community.title }}</span>
+                    </a>
+                {% endif %}
                 {% if tp == 0 %}
                     <a class="repost-sign" title="Нажмите для просмотра оригинальной записи"
                        href="/origin/{{ news.id }}">
@@ -110,9 +118,9 @@
                     </svg>
                 </a>
                 <br>
-                {% if news.user == user %}
+                {% if news.user == user or user in news.community.admins.all or user == news.community.creator %}
                     {% if tp == 1 %}
-                        <btn class="delete-news {{ news.id }} {{ news.post.id }}"
+                        <btn class="delete-news {{ news.id }} {{ news.post.id }} {{ news.community.id }}"
                              title="Удалить запись">
                             <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26"
                                  fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
@@ -120,7 +128,7 @@
                             </svg>
                         </btn>
                     {% else %}
-                        <btn class="delete-repost {{ news.id }} {{ news.post.id }}"
+                        <btn class="delete-repost {{ news.id }} {{ news.post.id }} {{ news.community.id }}"
                              title="Удалить запись">
                             <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26"
                                  fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">

@@ -1,0 +1,11 @@
+{% extends "main.html" %}
+{% block content %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/login_style.css' %}">
+    <h1>Создание сообщества</h1>
+    <form class="login-form" action="" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Создать сообщество</button>
+    </form>
+{% endblock %}

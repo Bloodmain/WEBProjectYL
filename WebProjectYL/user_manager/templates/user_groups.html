@@ -1,0 +1,55 @@
+{% extends "main.html" %}
+{% block content %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/find_user.css' %}">
+    <link rel="stylesheet" href="{% static 'css/user_groups.css' %}">
+    <div class="name-input-div">
+        <input placeholder="Найти..." class="group-input {{ uid }}" value="{{ req }}">
+    </div>
+    <br>
+    {% if uid == user.id %}
+        <span class="create-group-text">Создать сообщество:</span>
+        <a href="/create_group/"><img class="create-group"
+                src="{% static 'img/atf.png' %}" alt="+"
+                title="Создать сообщество"></a>
+        <br><br>
+    {% endif %}
+    {% if uid == user.id %}
+        <h1>Ваши сообщества</h1>
+    {% else %}
+        <h1>Сообщества пользователя</h1>
+    {% endif %}
+    {% if ucoms %}
+        {% for c in ucoms %}
+            <a href="/groups/{{ c.id }}" class="author_url">
+                <img src="{{ c.avatar.url }}" alt="Аватарка"
+                     class="news_avatar comment-avatar">
+                <span class="creator_name">{{ c.title }}</span>
+            </a>
+            <br>
+        {% endfor %}
+    {% else %}
+        Ничего не найдено
+    {% endif %}
+    <br><br>
+    {% if uid == user.id %}
+        <h1>Остальные сообщества</h1>
+        {% if ocoms %}
+            {% for c in ocoms %}
+                <a href="/groups/{{ c.id }}" class="author_url">
+                    <img src="{{ c.avatar.url }}" alt="Аватарка"
+                         class="news_avatar comment-avatar">
+                    <span class="creator_name">{{ c.title }}</span>
+                </a>
+                <br>
+            {% endfor %}
+        {% else %}
+            Ничего не найдено
+        {% endif %}
+    {% endif %}
+    <script>
+        $('.news_avatar').on('error', function () {
+            this.src = "{% static 'img/standart_avatar.jpg'%}";
+        })
+    </script>
+{% endblock %}

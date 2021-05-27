@@ -1,0 +1,17 @@
+h1 {
+    font-family: "Segoe Print";
+    font-size: 30px;
+    font-weight: bold;
+}
+
+.group-input {
+    width: 100%;
+    border: 0;
+    border-bottom: 1px solid #c9c9c9;
+}
+
+.create-group-text {
+    font-family: "Segoe Print";
+    font-size: 15px;
+    font-weight: bold;
+}

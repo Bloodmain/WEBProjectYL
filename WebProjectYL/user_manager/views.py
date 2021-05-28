@@ -803,6 +803,12 @@ def create_group(request):
             group.creator = request.user
             if not group.avatar:
                 group.avatar = 'none'
+            cms = Community.objects.all()
+            if not cms:
+                cms = 1
+            else:
+                cms = max(cms, key=lambda x: x.id) + 1
+            group.id = cms
             group.save()
             return redirect(f'/groups/{group.id}')
     else:
